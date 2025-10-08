@@ -14,6 +14,31 @@ datasource db {
 // MODELS
 // ============================================
 
+model User {
+  id          String     @id @default(uuid())
+  name        String
+  email       String     @unique
+  avatar      String?                         // URL oder Pfad zum Avatar
+  role        UserRole   @default(MEMBER)
+  
+  // Relations
+  projects    ProjectMember[]
+  assignedTasks Task[]
+  
+  // Timestamps
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  @@index([email])
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN   @map("admin")
+  MEMBER  @map("member")
+  VIEWER  @map("viewer")
+}
+
 model Client {
   id        String       @id @default(uuid())
   name      String
@@ -59,6 +84,7 @@ model Project {
   tasks       Task[]
   notes       Note[]
   attachments Attachment[]
+  members     ProjectMember[]
   
   // Soft Delete (für zukünftige Erweiterung)
   deletedAt   DateTime?     @map("deleted_at")
@@ -92,11 +118,15 @@ model Task {
   projectId   String       @map("project_id")
   project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   
+  assignedToId String?     @map("assigned_to_id")
+  assignedTo   User?       @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  
   // Timestamps
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
 
   @@index([projectId])
+  @@index([assignedToId])
   @@index([status])
   @@index([dueDate])
   @@map("tasks")
@@ -181,4 +211,33 @@ model Attachment {
 
   @@index([projectId])
   @@map("attachments")
+}
+
+// Many-to-Many Relation zwischen Projects und Users
+model ProjectMember {
+  id        String   @id @default(uuid())
+  
+  // Relations
+  projectId String   @map("project_id")
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Role im Projekt
+  role      ProjectMemberRole @default(MEMBER)
+  
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
+  @@map("project_members")
+}
+
+enum ProjectMemberRole {
+  OWNER  @map("owner")
+  MEMBER @map("member")
+  VIEWER @map("viewer")
 }

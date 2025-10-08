@@ -39,6 +39,7 @@ import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import type { Task } from '@/types';
+import { AssigneeSelector } from '@/components/assignee-selector';
 
 interface TaskFormDialogProps {
   open: boolean;
@@ -67,6 +68,7 @@ export function TaskFormDialog({
       priority: 'MEDIUM' as const,
       dueDate: undefined as string | undefined,
       projectId: projectId || '',
+      assignedToId: undefined as string | null | undefined,
     },
   });
 
@@ -81,6 +83,7 @@ export function TaskFormDialog({
           priority: task.priority,
           dueDate: task.dueDate ? new Date(task.dueDate).toISOString() : undefined,
           projectId: task.projectId,
+          assignedToId: (task as any).assignedToId || null,
         });
       } else {
         form.reset({
@@ -90,6 +93,7 @@ export function TaskFormDialog({
           priority: 'MEDIUM',
           dueDate: undefined,
           projectId: projectId,
+          assignedToId: null,
         });
       }
     }
@@ -279,6 +283,25 @@ export function TaskFormDialog({
                       />
                     </PopoverContent>
                   </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Assignee */}
+            <FormField
+              control={form.control}
+              name="assignedToId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Zugewiesen an</FormLabel>
+                  <FormControl>
+                    <AssigneeSelector
+                      value={field.value}
+                      onChange={field.onChange}
+                      projectId={form.watch('projectId')}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

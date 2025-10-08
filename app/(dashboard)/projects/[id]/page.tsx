@@ -29,6 +29,7 @@ import Link from 'next/link';
 import type { Task, Note } from '@/types';
 import { ActivityTimeline } from '@/components/activities/activity-timeline';
 import { FileUpload } from '@/components/attachments/file-upload';
+import { TeamMembersList } from '@/components/team-members-list';
 
 const statusConfig = {
   PLANNING: { label: 'Planung', color: 'bg-blue-100 text-blue-800' },
@@ -383,6 +384,9 @@ export default function ProjectDetailPage() {
 
       {/* File Upload Section */}
       <FileUpload projectId={projectId} />
+
+      {/* Team Members Section */}
+      <TeamMembersList projectId={projectId} />
 
       {/* Activity Timeline Section */}
       <Card>
