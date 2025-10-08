@@ -12,9 +12,18 @@ import {
   TrendingUp,
   Clock,
   ExternalLink,
+  BarChart3,
 } from 'lucide-react';
 import { formatCurrency, formatDate, isDueSoon } from '@/lib/utils';
 import type { ProjectWithClient, Task } from '@/types';
+import { 
+  ProjectStatusChart, 
+  TaskProgressChart, 
+  BudgetOverviewChart,
+  ActivityTrendChart,
+  ClientActivityChart,
+  TeamPerformanceTable,
+} from '@/components/charts';
 
 type DashboardStats = {
   clients: {
@@ -43,6 +52,31 @@ type DashboardStats = {
   dueTasks: Array<Task & { project: ProjectWithClient }>;
 };
 
+type AnalyticsData = {
+  projectBudgets: Array<{
+    name: string;
+    budget: number;
+    timeSpent: number;
+  }>;
+  activityTrend: Array<{
+    date: string;
+    count: number;
+  }>;
+  clientStats: Array<{
+    name: string;
+    projects: number;
+    tasks: number;
+  }>;
+  teamStats: Array<{
+    name: string;
+    email: string;
+    totalTasks: number;
+    doneTasks: number;
+    completionRate: number;
+    hoursLogged: number;
+  }>;
+};
+
 async function fetchDashboardStats(): Promise<DashboardStats> {
   const response = await fetch('/api/stats');
   const result = await response.json();
@@ -54,10 +88,26 @@ async function fetchDashboardStats(): Promise<DashboardStats> {
   return result.data;
 }
 
+async function fetchAnalytics(): Promise<AnalyticsData> {
+  const response = await fetch('/api/analytics');
+  const result = await response.json();
+  
+  if (!result.success || !result.data) {
+    throw new Error('Analytics konnten nicht geladen werden');
+  }
+  
+  return result.data;
+}
+
 export default function DashboardPage() {
   const { data: stats, isLoading } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: fetchDashboardStats,
+  });
+
+  const { data: analytics, isLoading: analyticsLoading } = useQuery({
+    queryKey: ['analytics'],
+    queryFn: fetchAnalytics,
   });
 
   if (isLoading) {
@@ -172,6 +222,57 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Analytics Section */}
+      {!analyticsLoading && analytics && (
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
+              <BarChart3 className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Analytics & Insights
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Detaillierte Auswertungen und Visualisierungen
+              </p>
+            </div>
+          </div>
+
+          {/* Charts Grid Row 1 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ProjectStatusChart
+              planning={stats.projects.planning}
+              inProgress={stats.projects.inProgress}
+              review={stats.projects.review}
+              completed={stats.projects.completed}
+              onHold={stats.projects.onHold}
+            />
+            <TaskProgressChart
+              todo={stats.tasks.todo}
+              inProgress={stats.tasks.inProgress}
+              done={stats.tasks.done}
+            />
+          </div>
+
+          {/* Charts Grid Row 2 */}
+          <div className="grid grid-cols-1 gap-6">
+            <BudgetOverviewChart projectBudgets={analytics.projectBudgets} />
+          </div>
+
+          {/* Charts Grid Row 3 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ActivityTrendChart activities={analytics.activityTrend} />
+            <ClientActivityChart clients={analytics.clientStats} />
+          </div>
+
+          {/* Team Performance */}
+          <div className="grid grid-cols-1 gap-6">
+            <TeamPerformanceTable team={analytics.teamStats} />
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Projects */}
