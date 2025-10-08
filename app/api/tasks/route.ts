@@ -14,12 +14,19 @@ export async function GET(request: NextRequest) {
     const projectId = searchParams.get('projectId');
     const status = searchParams.get('status');
     const priority = searchParams.get('priority');
+    const search = searchParams.get('search');
 
     const tasks = await prisma.task.findMany({
       where: {
         ...(projectId && { projectId }),
         ...(status && { status: status as any }),
         ...(priority && { priority: priority as any }),
+        ...(search && {
+          OR: [
+            { title: { contains: search } },
+            { description: { contains: search } },
+          ],
+        }),
       },
       include: {
         project: {

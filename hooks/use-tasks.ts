@@ -19,10 +19,16 @@ interface UseTasksOptions {
   projectId?: string;
   status?: string;
   priority?: string;
+  search?: string;
 }
 
 async function fetchTasks(options: UseTasksOptions = {}) {
   const params = new URLSearchParams();
+  
+  if (options.projectId) params.append('projectId', options.projectId);
+  if (options.status) params.append('status', options.status);
+  if (options.priority) params.append('priority', options.priority);
+  if (options.search) params.append('search', options.search);
   
   if (options.projectId) params.append('projectId', options.projectId);
   if (options.status) params.append('status', options.status);

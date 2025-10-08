@@ -29,6 +29,7 @@ import {
   Edit, 
   Trash2,
   ExternalLink,
+  LayoutGrid,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import Link from 'next/link';
@@ -131,10 +132,18 @@ export default function TasksPage() {
             Verwalten Sie alle Aufgaben über Projekte hinweg
           </p>
         </div>
-        <Button onClick={handleAddNew}>
-          <Plus className="mr-2 h-4 w-4" />
-          Aufgabe hinzufügen
-        </Button>
+        <div className="flex items-center gap-3">
+          <Link href="/tasks/board">
+            <Button variant="outline" className="gap-2">
+              <LayoutGrid className="h-4 w-4" />
+              Kanban Board
+            </Button>
+          </Link>
+          <Button onClick={handleAddNew}>
+            <Plus className="mr-2 h-4 w-4" />
+            Aufgabe hinzufügen
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
