@@ -41,36 +41,36 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 text-white min-h-screen transition-all duration-300 ease-in-out relative flex flex-col shadow-2xl',
+        'bg-white border-r border-gray-200 min-h-screen transition-all duration-200 ease-out relative flex flex-col',
         isCollapsed ? 'w-20' : 'w-64'
       )}
     >
       {/* Main Content Container */}
       <div className={cn('flex-1', isCollapsed ? 'p-4' : 'p-6')}>
-        {/* Logo/Title */}
+        {/* Logo/Title - Clean & Minimal */}
         <div className={cn('mb-8 flex items-center', isCollapsed ? 'justify-center' : 'justify-between')}>
-          <div className="transition-all duration-300">
+          <div className="transition-all duration-200">
             <h1
               className={cn(
-                'font-bold text-white transition-all duration-300 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent',
+                'font-semibold text-gray-900 tracking-tight transition-all duration-200',
                 isCollapsed ? 'text-xl text-center' : 'text-2xl'
               )}
             >
-              {isCollapsed ? 'C' : 'CRM'}
+              {isCollapsed ? '◆' : 'Nexus'}
             </h1>
             {!isCollapsed && (
-              <p className="text-sm text-slate-400 mt-1 animate-in fade-in duration-500">Webdesign Agentur</p>
+              <p className="text-xs text-gray-500 mt-0.5">CRM System</p>
             )}
           </div>
           
-          {/* Toggle Button - Integrated */}
+          {/* Toggle Button - Minimal */}
           {!isCollapsed && (
             <button
               onClick={toggleSidebar}
-              className="h-8 w-8 rounded-lg bg-slate-800 hover:bg-blue-600 flex items-center justify-center transition-all duration-300 group hover:scale-110 hover:shadow-lg hover:shadow-blue-500/50"
+              className="h-8 w-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-fast"
               title="Sidebar einklappen"
             >
-              <ChevronLeft className="h-5 w-5 text-slate-400 group-hover:text-white transition-colors" />
+              <ChevronLeft className="h-4 w-4 text-gray-500" />
             </button>
           )}
         </div>
@@ -82,8 +82,8 @@ export function Sidebar() {
           </div>
         )}
 
-        {/* Navigation */}
-        <nav className="space-y-2">
+        {/* Navigation - Clean & Modern */}
+        <nav className="space-y-1">
           {navigation.map((item) => {
             const Icon = item.icon;
             const isActive =
@@ -95,35 +95,30 @@ export function Sidebar() {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  'group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 relative overflow-hidden',
+                  'group flex items-center gap-3 px-3 py-2 rounded-lg transition-fast relative',
                   isActive
-                    ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold shadow-lg shadow-blue-600/50 scale-105'
-                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-white hover:shadow-md hover:scale-102 hover:-translate-x-1',
+                    ? 'bg-gray-100 text-gray-900 font-medium'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
                   isCollapsed && 'justify-center px-2'
                 )}
                 title={isCollapsed ? item.name : undefined}
               >
-                {/* Active Indicator */}
-                {isActive && !isCollapsed && (
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-full animate-in slide-in-from-left duration-300" />
+                {/* Active Indicator - Subtle */}
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-500 rounded-r-full" />
                 )}
                 
                 <Icon 
                   className={cn(
-                    'flex-shrink-0 transition-all duration-300',
-                    isCollapsed ? 'w-6 h-6' : 'w-5 h-5',
-                    isActive ? 'text-white' : 'text-slate-400 group-hover:text-blue-400 group-hover:scale-110'
+                    'flex-shrink-0 transition-fast',
+                    isCollapsed ? 'w-5 h-5' : 'w-4 h-4',
+                    isActive ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-600'
                   )} 
                 />
                 {!isCollapsed && (
-                  <span className="transition-all duration-300">
+                  <span className="text-sm transition-fast">
                     {item.name}
                   </span>
-                )}
-                
-                {/* Hover Glow Effect */}
-                {!isActive && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-blue-600/5 to-blue-600/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 )}
               </Link>
             );
@@ -131,23 +126,23 @@ export function Sidebar() {
         </nav>
       </div>
 
-      {/* Expand Button - Shows only when collapsed */}
+      {/* Expand Button - Minimal */}
       {isCollapsed && (
-        <div className="p-4 border-t border-slate-800/50">
+        <div className="p-4 border-t border-gray-200">
           <button
             onClick={toggleSidebar}
-            className="w-full h-10 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 flex items-center justify-center transition-all duration-300 group hover:shadow-lg hover:shadow-blue-500/50 hover:scale-105"
+            className="w-full h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-fast"
             title="Sidebar ausklappen"
           >
-            <ChevronRight className="h-5 w-5 text-white group-hover:scale-125 transition-transform duration-300" />
+            <ChevronRight className="h-4 w-4 text-gray-600" />
           </button>
         </div>
       )}
 
-      {/* Footer */}
-      <div className={cn('p-4 border-t border-slate-800/50 backdrop-blur-sm', isCollapsed && 'text-center')}>
-        <p className={cn('text-xs text-slate-500 transition-all duration-300', isCollapsed && 'hidden')}>
-          © 2024 CRM System
+      {/* Footer - Minimal */}
+      <div className={cn('p-4 border-t border-gray-200', isCollapsed && 'text-center')}>
+        <p className={cn('text-xs text-gray-400 transition-fast', isCollapsed && 'hidden')}>
+          © 2024 Nexus CRM
         </p>
       </div>
     </aside>
