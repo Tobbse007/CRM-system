@@ -1,0 +1,131 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+model Client {
+  id        String       @id @default(uuid())
+  name      String
+  email     String       @unique
+  phone     String?
+  company   String?
+  website   String?
+  status    ClientStatus @default(ACTIVE)
+  
+  // Relations
+  projects  Project[]
+  
+  // Soft Delete (für zukünftige Erweiterung)
+  deletedAt DateTime?    @map("deleted_at")
+  
+  // Timestamps
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  @@index([email])
+  @@index([status])
+  @@map("clients")
+}
+
+enum ClientStatus {
+  ACTIVE    @map("active")
+  INACTIVE  @map("inactive")
+  POTENTIAL @map("potential")
+}
+
+model Project {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  status      ProjectStatus @default(PLANNING)
+  budget      Float?
+  startDate   DateTime?     @map("start_date")
+  endDate     DateTime?     @map("end_date")
+  
+  // Relations
+  clientId    String        @map("client_id")
+  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  tasks       Task[]
+  notes       Note[]
+  
+  // Soft Delete (für zukünftige Erweiterung)
+  deletedAt   DateTime?     @map("deleted_at")
+  
+  // Timestamps
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  @@index([clientId])
+  @@index([status])
+  @@map("projects")
+}
+
+enum ProjectStatus {
+  PLANNING     @map("planning")
+  IN_PROGRESS  @map("in_progress")
+  REVIEW       @map("review")
+  COMPLETED    @map("completed")
+  ON_HOLD      @map("on_hold")
+}
+
+model Task {
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus   @default(TODO)
+  priority    TaskPriority @default(MEDIUM)
+  dueDate     DateTime?    @map("due_date")
+  
+  // Relations
+  projectId   String       @map("project_id")
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  @@index([projectId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("tasks")
+}
+
+enum TaskStatus {
+  TODO        @map("todo")
+  IN_PROGRESS @map("in_progress")
+  DONE        @map("done")
+}
+
+enum TaskPriority {
+  LOW    @map("low")
+  MEDIUM @map("medium")
+  HIGH   @map("high")
+}
+
+model Note {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  
+  // Relations
+  projectId String   @map("project_id")
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([projectId])
+  @@map("notes")
+}
