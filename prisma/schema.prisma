@@ -129,3 +129,34 @@ model Note {
   @@index([projectId])
   @@map("notes")
 }
+
+model Activity {
+  id          String       @id @default(uuid())
+  type        ActivityType
+  entityType  String       @map("entity_type")  // 'client', 'project', 'task', 'note'
+  entityId    String       @map("entity_id")
+  entityName  String       @map("entity_name")  // Name des betroffenen Objekts
+  description String                             // z.B. "Status geändert von TODO zu IN_PROGRESS"
+  metadata    String?                            // JSON-String für zusätzliche Daten
+  
+  // User-Info (später mit User-Model verknüpfen)
+  userId      String?      @map("user_id")
+  userName    String?      @map("user_name")    // z.B. "System" oder "Admin"
+  
+  // Timestamps
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  @@index([entityType, entityId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("activities")
+}
+
+enum ActivityType {
+  CREATED        @map("created")
+  UPDATED        @map("updated")
+  DELETED        @map("deleted")
+  STATUS_CHANGED @map("status_changed")
+  ASSIGNED       @map("assigned")
+  COMMENTED      @map("commented")
+}

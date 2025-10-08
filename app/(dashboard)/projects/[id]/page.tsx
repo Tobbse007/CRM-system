@@ -22,10 +22,12 @@ import {
   FileText,
   Edit,
   Trash2,
+  Activity,
 } from 'lucide-react';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import Link from 'next/link';
 import type { Task, Note } from '@/types';
+import { ActivityTimeline } from '@/components/activities/activity-timeline';
 
 const statusConfig = {
   PLANNING: { label: 'Planung', color: 'bg-blue-100 text-blue-800' },
@@ -375,6 +377,19 @@ export default function ProjectDetailPage() {
               ))}
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Activity Timeline Section */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Activity className="h-5 w-5" />
+            <CardTitle>Aktivitäts-Verlauf</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <ActivityTimeline entityType="project" entityId={projectId} limit={30} />
         </CardContent>
       </Card>
 

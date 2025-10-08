@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { taskSchema } from '@/lib/validations/task';
 import { ZodError } from 'zod';
+import { logCreated } from '@/lib/activity-logger';
 
 /**
  * GET /api/tasks
@@ -99,6 +100,9 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // Log activity
+    await logCreated('task', task.id, task.title);
 
     return NextResponse.json(
       {

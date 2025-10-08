@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { taskUpdateSchema } from '@/lib/validations/task';
 import { ZodError } from 'zod';
+import { logUpdated, logDeleted, logStatusChanged } from '@/lib/activity-logger';
 
 /**
  * GET /api/tasks/[id]
@@ -98,6 +99,28 @@ export async function PUT(
       },
     });
 
+    // Log activity
+    if (validatedData.status && existingTask.status !== validatedData.status) {
+      // Status wurde geändert
+      await logStatusChanged(
+        'task',
+        task.id,
+        task.title,
+        existingTask.status,
+        validatedData.status
+      );
+    } else {
+      // Andere Felder wurden aktualisiert
+      const changes: string[] = [];
+      if (validatedData.title && existingTask.title !== validatedData.title) changes.push('Titel');
+      if (validatedData.priority && existingTask.priority !== validatedData.priority) changes.push('Priorität');
+      if (validatedData.dueDate !== undefined) changes.push('Fälligkeitsdatum');
+      
+      if (changes.length > 0) {
+        await logUpdated('task', task.id, task.title, changes);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       data: task,
@@ -153,6 +176,9 @@ export async function DELETE(
     await prisma.task.delete({
       where: { id: params.id },
     });
+
+    // Log activity
+    await logDeleted('task', existingTask.id, existingTask.title);
 
     return NextResponse.json({
       success: true,
