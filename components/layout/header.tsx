@@ -1,19 +1,15 @@
 'use client';
 
-import { Bell, Search } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { GlobalSearchTrigger } from '@/components/filters';
 
 export function Header() {
   return (
     <header className="h-16 border-b bg-white px-6 flex items-center justify-between">
       <div className="flex items-center gap-4 flex-1">
-        <div className="relative w-96">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Suche nach Kunden, Projekten..."
-            className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
+        <div className="w-96">
+          <GlobalSearchTrigger />
         </div>
       </div>
 
