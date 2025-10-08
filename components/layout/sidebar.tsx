@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Home, Users, FolderKanban, CheckSquare, Activity, Settings, ChevronLeft, ChevronRight, UserCog, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { NotificationBell } from '@/components/notifications/notification-bell';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Home },
@@ -73,6 +74,13 @@ export function Sidebar() {
             </button>
           )}
         </div>
+
+        {/* Notification Bell */}
+        {!isCollapsed && (
+          <div className="mb-6">
+            <NotificationBell />
+          </div>
+        )}
 
         {/* Navigation */}
         <nav className="space-y-2">

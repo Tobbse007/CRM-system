@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, NotificationType } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -6,6 +6,7 @@ async function main() {
   console.log('🌱 Start seeding database...');
 
   // Cleanup existing data
+  await prisma.notification.deleteMany();
   await prisma.note.deleteMany();
   await prisma.task.deleteMany();
   await prisma.project.deleteMany();
@@ -235,6 +236,94 @@ async function main() {
   });
 
   console.log('✅ Created 5 notes');
+
+  // Create Notifications
+  await prisma.notification.createMany({
+    data: [
+      {
+        type: 'PROJECT',
+        title: 'Neues Projekt erstellt',
+        message: `Corporate Website Redesign für ${client1.name}`,
+        projectId: project1.id,
+        clientId: client1.id,
+        link: `/projects/${project1.id}`,
+        priority: 'NORMAL',
+        read: false,
+        createdAt: new Date(Date.now() - 1000 * 60 * 5), // vor 5 Min
+      },
+      {
+        type: 'TASK',
+        title: 'Aufgabe abgeschlossen',
+        message: 'Wireframes erstellen wurde erledigt 🎉',
+        projectId: project1.id,
+        link: `/projects/${project1.id}`,
+        priority: 'NORMAL',
+        read: false,
+        createdAt: new Date(Date.now() - 1000 * 60 * 30), // vor 30 Min
+      },
+      {
+        type: 'DEADLINE',
+        title: 'Aufgabe fällig bald',
+        message: 'Design-System aufbauen ist in 4 Tagen fällig',
+        projectId: project1.id,
+        link: `/projects/${project1.id}`,
+        priority: 'HIGH',
+        read: false,
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // vor 2 Std
+      },
+      {
+        type: 'CLIENT',
+        title: 'Neuer Kunde erstellt',
+        message: `${client2.name} (${client2.company}) wurde hinzugefügt`,
+        clientId: client2.id,
+        link: '/clients',
+        priority: 'NORMAL',
+        read: true,
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5), // vor 5 Std
+      },
+      {
+        type: 'PROJECT',
+        title: 'Projekt-Status geändert',
+        message: 'Brand Identity Package ist jetzt in Review',
+        projectId: project3.id,
+        link: `/projects/${project3.id}`,
+        priority: 'HIGH',
+        read: false,
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8), // vor 8 Std
+      },
+      {
+        type: 'DEADLINE',
+        title: 'Aufgabe überfällig',
+        message: 'Finales Logo ausarbeiten ist seit 2 Tagen überfällig',
+        projectId: project3.id,
+        link: `/projects/${project3.id}`,
+        priority: 'URGENT',
+        read: false,
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // vor 1 Tag
+      },
+      {
+        type: 'TASK',
+        title: 'Neue Aufgabe zugewiesen',
+        message: 'Tech-Stack finalisieren in MVP Webapplikation',
+        projectId: project5.id,
+        link: `/projects/${project5.id}`,
+        priority: 'HIGH',
+        read: true,
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // vor 2 Tagen
+      },
+      {
+        type: 'SYSTEM',
+        title: 'Willkommen im CRM System',
+        message: 'Alle Features sind nun verfügbar. Viel Erfolg! 🚀',
+        link: '/',
+        priority: 'NORMAL',
+        read: true,
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7), // vor 1 Woche
+      },
+    ],
+  });
+
+  console.log('✅ Created 8 notifications');
   console.log('🎉 Seeding completed successfully!');
 }
 

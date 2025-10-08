@@ -113,10 +113,12 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
+    outline-color: oklch(var(--ring) / 0.5);
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
   }
 }
 
@@ -136,15 +138,24 @@
 
   /* Modern Hover Effects */
   .hover-lift {
-    @apply transition-smooth hover:-translate-y-1 hover:shadow-lg;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   }
   
   .hover-scale {
-    @apply transition-smooth hover:scale-105;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .hover-scale:hover {
+    transform: scale(1.05);
   }
   
   .hover-glow {
-    @apply transition-smooth;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   .hover-glow:hover {
@@ -153,15 +164,37 @@
 
   /* Card Effects */
   .card-modern {
-    @apply bg-card border border-border rounded-lg transition-smooth;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   .card-hover {
-    @apply card-modern hover:shadow-xl hover:border-primary/20 hover:-translate-y-0.5;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .card-hover:hover {
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    border-color: oklch(0.488 0.243 264.376 / 0.2);
+    transform: translateY(-2px);
   }
   
   .card-interactive {
-    @apply card-hover cursor-pointer;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+  
+  .card-interactive:hover {
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    border-color: oklch(0.488 0.243 264.376 / 0.2);
+    transform: translateY(-2px);
   }
 
   /* Gradient Backgrounds */
@@ -196,21 +229,41 @@
 
   /* Glassmorphism */
   .glass {
-    @apply backdrop-blur-md bg-background/70 border border-border/50;
+    backdrop-filter: blur(12px);
+    background: oklch(1 0 0 / 0.7);
+    border: 1px solid oklch(var(--border) / 0.5);
   }
   
   .glass-dark {
-    @apply backdrop-blur-md bg-card/50 border border-border/30;
+    backdrop-filter: blur(12px);
+    background: oklch(var(--card) / 0.5);
+    border: 1px solid oklch(var(--border) / 0.3);
   }
 
   /* Focus States */
   .focus-modern {
-    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-smooth;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .focus-modern:focus {
+    box-shadow: 0 0 0 2px var(--primary);
+    outline-offset: 2px;
   }
 
   /* Button Animations */
   .button-modern {
-    @apply transition-smooth hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-md;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .button-modern:hover {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    transform: translateY(-2px);
+  }
+  
+  .button-modern:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   }
   
   .button-pulse {
@@ -219,7 +272,9 @@
 
   /* Loading States */
   .skeleton {
-    @apply animate-pulse bg-muted rounded;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    background-color: var(--muted);
+    border-radius: var(--radius-lg);
   }
   
   .shimmer {
@@ -234,7 +289,9 @@
 
   /* Text Effects */
   .text-gradient {
-    @apply bg-clip-text text-transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
     background-image: linear-gradient(135deg, oklch(0.488 0.243 264.376), oklch(0.645 0.246 16.439));
   }
 }

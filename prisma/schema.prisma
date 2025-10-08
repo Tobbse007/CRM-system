@@ -15,49 +15,50 @@ datasource db {
 // ============================================
 
 model User {
-  id          String     @id @default(uuid())
-  name        String
-  email       String     @unique
-  avatar      String?                         // URL oder Pfad zum Avatar
-  role        UserRole   @default(MEMBER)
-  
+  id     String   @id @default(uuid())
+  name   String
+  email  String   @unique
+  avatar String? // URL oder Pfad zum Avatar
+  role   UserRole @default(MEMBER)
+
   // Relations
-  projects    ProjectMember[]
+  projects      ProjectMember[]
   assignedTasks Task[]
-  timeEntries TimeEntry[]                     // Zeiteinträge des Benutzers
-  
+  timeEntries   TimeEntry[] // Zeiteinträge des Benutzers
+
   // Timestamps
-  createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([email])
   @@map("users")
 }
 
 enum UserRole {
-  ADMIN   @map("admin")
-  MEMBER  @map("member")
-  VIEWER  @map("viewer")
+  ADMIN  @map("admin")
+  MEMBER @map("member")
+  VIEWER @map("viewer")
 }
 
 model Client {
-  id        String       @id @default(uuid())
-  name      String
-  email     String       @unique
-  phone     String?
-  company   String?
-  website   String?
-  status    ClientStatus @default(ACTIVE)
-  
+  id      String       @id @default(uuid())
+  name    String
+  email   String       @unique
+  phone   String?
+  company String?
+  website String?
+  status  ClientStatus @default(ACTIVE)
+
   // Relations
-  projects  Project[]
-  
+  projects      Project[]
+  notifications Notification[]
+
   // Soft Delete (für zukünftige Erweiterung)
-  deletedAt DateTime?    @map("deleted_at")
-  
+  deletedAt DateTime? @map("deleted_at")
+
   // Timestamps
-  createdAt DateTime     @default(now()) @map("created_at")
-  updatedAt DateTime     @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([email])
   @@index([status])
@@ -78,22 +79,23 @@ model Project {
   budget      Float?
   startDate   DateTime?     @map("start_date")
   endDate     DateTime?     @map("end_date")
-  
+
   // Relations
-  clientId    String        @map("client_id")
-  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  tasks       Task[]
-  notes       Note[]
-  attachments Attachment[]
-  members     ProjectMember[]
-  timeEntries TimeEntry[]   // Zeiteinträge für dieses Projekt
-  
+  clientId      String          @map("client_id")
+  client        Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  tasks         Task[]
+  notes         Note[]
+  attachments   Attachment[]
+  members       ProjectMember[]
+  timeEntries   TimeEntry[] // Zeiteinträge für dieses Projekt
+  notifications Notification[]
+
   // Soft Delete (für zukünftige Erweiterung)
-  deletedAt   DateTime?     @map("deleted_at")
-  
+  deletedAt DateTime? @map("deleted_at")
+
   // Timestamps
-  createdAt   DateTime      @default(now()) @map("created_at")
-  updatedAt   DateTime      @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([clientId])
   @@index([status])
@@ -101,11 +103,11 @@ model Project {
 }
 
 enum ProjectStatus {
-  PLANNING     @map("planning")
-  IN_PROGRESS  @map("in_progress")
-  REVIEW       @map("review")
-  COMPLETED    @map("completed")
-  ON_HOLD      @map("on_hold")
+  PLANNING    @map("planning")
+  IN_PROGRESS @map("in_progress")
+  REVIEW      @map("review")
+  COMPLETED   @map("completed")
+  ON_HOLD     @map("on_hold")
 }
 
 model Task {
@@ -115,19 +117,20 @@ model Task {
   status      TaskStatus   @default(TODO)
   priority    TaskPriority @default(MEDIUM)
   dueDate     DateTime?    @map("due_date")
-  
+
   // Relations
-  projectId   String       @map("project_id")
-  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
-  assignedToId String?     @map("assigned_to_id")
-  assignedTo   User?       @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
-  
-  timeEntries TimeEntry[]  // Zeiteinträge für diese Aufgabe
-  
+  projectId String  @map("project_id")
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  assignedToId String? @map("assigned_to_id")
+  assignedTo   User?   @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  timeEntries   TimeEntry[] // Zeiteinträge für diese Aufgabe
+  notifications Notification[]
+
   // Timestamps
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([projectId])
   @@index([assignedToId])
@@ -149,14 +152,14 @@ enum TaskPriority {
 }
 
 model Note {
-  id        String   @id @default(uuid())
-  title     String
-  content   String
-  
+  id      String @id @default(uuid())
+  title   String
+  content String
+
   // Relations
-  projectId String   @map("project_id")
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
+  projectId String  @map("project_id")
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -168,18 +171,18 @@ model Note {
 model Activity {
   id          String       @id @default(uuid())
   type        ActivityType
-  entityType  String       @map("entity_type")  // 'client', 'project', 'task', 'note'
+  entityType  String       @map("entity_type") // 'client', 'project', 'task', 'note'
   entityId    String       @map("entity_id")
-  entityName  String       @map("entity_name")  // Name des betroffenen Objekts
-  description String                             // z.B. "Status geändert von TODO zu IN_PROGRESS"
-  metadata    String?                            // JSON-String für zusätzliche Daten
-  
+  entityName  String       @map("entity_name") // Name des betroffenen Objekts
+  description String // z.B. "Status geändert von TODO zu IN_PROGRESS"
+  metadata    String? // JSON-String für zusätzliche Daten
+
   // User-Info (später mit User-Model verknüpfen)
-  userId      String?      @map("user_id")
-  userName    String?      @map("user_name")    // z.B. "System" oder "Admin"
-  
+  userId   String? @map("user_id")
+  userName String? @map("user_name") // z.B. "System" oder "Admin"
+
   // Timestamps
-  createdAt   DateTime     @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@index([entityType, entityId])
   @@index([type])
@@ -197,21 +200,21 @@ enum ActivityType {
 }
 
 model Attachment {
-  id          String   @id @default(uuid())
-  filename    String                         // Original filename
-  filepath    String                         // Path where file is stored
-  filesize    Int                            // Size in bytes
-  mimetype    String                         // MIME type (e.g., 'application/pdf')
-  
+  id       String @id @default(uuid())
+  filename String // Original filename
+  filepath String // Path where file is stored
+  filesize Int // Size in bytes
+  mimetype String // MIME type (e.g., 'application/pdf')
+
   // Relations
-  projectId   String   @map("project_id")
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
+  projectId String  @map("project_id")
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
   // User-Info (wer hat hochgeladen)
-  uploadedBy  String?  @map("uploaded_by")
-  
+  uploadedBy String? @map("uploaded_by")
+
   // Timestamps
-  createdAt   DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@index([projectId])
   @@map("attachments")
@@ -219,18 +222,18 @@ model Attachment {
 
 // Many-to-Many Relation zwischen Projects und Users
 model ProjectMember {
-  id        String   @id @default(uuid())
-  
+  id String @id @default(uuid())
+
   // Relations
-  projectId String   @map("project_id")
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
-  userId    String   @map("user_id")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  projectId String  @map("project_id")
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Role im Projekt
-  role      ProjectMemberRole @default(MEMBER)
-  
+  role ProjectMemberRole @default(MEMBER)
+
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -248,28 +251,76 @@ enum ProjectMemberRole {
 
 model TimeEntry {
   id          String    @id @default(uuid())
-  description String?                         // Optionale Beschreibung der Tätigkeit
-  startTime   DateTime  @map("start_time")    // Wann wurde gestartet
-  endTime     DateTime? @map("end_time")      // Wann wurde gestoppt (null = läuft noch)
-  duration    Int?                            // Dauer in Sekunden (wird berechnet bei endTime)
-  
+  description String? // Optionale Beschreibung der Tätigkeit
+  startTime   DateTime  @map("start_time") // Wann wurde gestartet
+  endTime     DateTime? @map("end_time") // Wann wurde gestoppt (null = läuft noch)
+  duration    Int? // Dauer in Sekunden (wird berechnet bei endTime)
+
   // Relations
-  taskId      String?   @map("task_id")       // Optional: Kann auch ohne Task genutzt werden
-  task        Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
-  
-  projectId   String    @map("project_id")
-  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
-  userId      String?   @map("user_id")       // Wer hat die Zeit erfasst
-  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  
+  taskId String? @map("task_id") // Optional: Kann auch ohne Task genutzt werden
+  task   Task?   @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  projectId String  @map("project_id")
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  userId String? @map("user_id") // Wer hat die Zeit erfasst
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
   // Timestamps
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([projectId])
   @@index([taskId])
   @@index([userId])
   @@index([startTime])
   @@map("time_entries")
+}
+
+model Notification {
+  id      String           @id @default(uuid())
+  type    NotificationType
+  title   String
+  message String
+  read    Boolean          @default(false)
+
+  // Related Entities (optional)
+  projectId String?  @map("project_id")
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  taskId String? @map("task_id")
+  task   Task?   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  clientId String? @map("client_id")
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // Metadata
+  link     String? // Deep-link zur Entity (z.B. /projects/[id])
+  priority NotificationPriority @default(NORMAL)
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([read])
+  @@index([createdAt])
+  @@index([type])
+  @@index([priority])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  PROJECT  @map("project")
+  TASK     @map("task")
+  CLIENT   @map("client")
+  TEAM     @map("team")
+  DEADLINE @map("deadline")
+  SYSTEM   @map("system")
+}
+
+enum NotificationPriority {
+  LOW    @map("low")
+  NORMAL @map("normal")
+  HIGH   @map("high")
+  URGENT @map("urgent")
 }
