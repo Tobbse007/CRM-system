@@ -43,88 +43,93 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <SettingsIcon className="h-8 w-8" />
+        <h1 className="text-4xl font-bold flex items-center gap-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <SettingsIcon className="h-10 w-10 text-blue-600" />
           Einstellungen
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-muted-foreground mt-2 text-lg">
           System-Informationen und Verwaltungsoptionen
         </p>
       </div>
 
       {/* Database Statistics */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Database className="h-5 w-5" />
+      <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-transparent border-b-2">
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <div className="p-2 rounded-lg bg-blue-100">
+              <Database className="h-5 w-5 text-blue-600" />
+            </div>
             Datenbank-Statistiken
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-base">
             Übersicht über die Anzahl der Datensätze in der Datenbank
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           {statsLoading ? (
-            <div className="text-muted-foreground">Lade Statistiken...</div>
+            <div className="text-center py-8">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600 mx-auto mb-3" />
+              <span className="text-muted-foreground">Lade Statistiken...</span>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-4 border rounded-lg">
-                <div className="text-2xl font-bold">
+              <div className="group p-5 border-2 rounded-xl hover:border-blue-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-white to-blue-50/30">
+                <div className="text-3xl font-bold text-blue-600 group-hover:scale-110 transition-transform">
                   {stats?.clients.total || 0}
                 </div>
-                <div className="text-sm text-muted-foreground">Kunden gesamt</div>
-                <div className="mt-2 flex gap-2">
-                  <Badge variant="outline" className="text-xs">
+                <div className="text-sm font-semibold text-slate-700 mt-1">Kunden gesamt</div>
+                <div className="mt-3 flex gap-2">
+                  <Badge className="text-xs bg-green-100 text-green-700 border-green-300 hover:bg-green-200">
                     {stats?.clients.active || 0} Aktiv
                   </Badge>
-                  <Badge variant="outline" className="text-xs">
+                  <Badge className="text-xs bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200">
                     {stats?.clients.inactive || 0} Inaktiv
                   </Badge>
                 </div>
               </div>
 
-              <div className="p-4 border rounded-lg">
-                <div className="text-2xl font-bold">
+              <div className="group p-5 border-2 rounded-xl hover:border-purple-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-white to-purple-50/30">
+                <div className="text-3xl font-bold text-purple-600 group-hover:scale-110 transition-transform">
                   {stats?.projects.total || 0}
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm font-semibold text-slate-700 mt-1">
                   Projekte gesamt
                 </div>
-                <div className="mt-2">
-                  <Badge variant="outline" className="text-xs">
+                <div className="mt-3">
+                  <Badge className="text-xs bg-purple-100 text-purple-700 border-purple-300 hover:bg-purple-200">
                     {stats?.projects.planning || 0} Planung
                   </Badge>
                 </div>
               </div>
 
-              <div className="p-4 border rounded-lg">
-                <div className="text-2xl font-bold">
+              <div className="group p-5 border-2 rounded-xl hover:border-green-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-white to-green-50/30">
+                <div className="text-3xl font-bold text-green-600 group-hover:scale-110 transition-transform">
                   {stats?.tasks.total || 0}
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm font-semibold text-slate-700 mt-1">
                   Aufgaben gesamt
                 </div>
-                <div className="mt-2 flex gap-2">
-                  <Badge variant="outline" className="text-xs">
+                <div className="mt-3 flex gap-2">
+                  <Badge className="text-xs bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200">
                     {stats?.tasks.todo || 0} Offen
                   </Badge>
-                  <Badge variant="outline" className="text-xs">
+                  <Badge className="text-xs bg-green-100 text-green-700 border-green-300 hover:bg-green-200">
                     {stats?.tasks.done || 0} Erledigt
                   </Badge>
                 </div>
               </div>
 
-              <div className="p-4 border rounded-lg">
-                <div className="text-2xl font-bold">
+              <div className="group p-5 border-2 rounded-xl hover:border-orange-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-white to-orange-50/30">
+                <div className="text-3xl font-bold text-orange-600 group-hover:scale-110 transition-transform">
                   {new Intl.NumberFormat('de-DE', {
                     style: 'currency',
                     currency: 'EUR',
                   }).format(stats?.budget.total || 0)}
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm font-semibold text-slate-700 mt-1">
                   Gesamt-Budget
                 </div>
               </div>
@@ -134,47 +139,49 @@ export default function SettingsPage() {
       </Card>
 
       {/* System Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Info className="h-5 w-5" />
+      <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
+        <CardHeader className="bg-gradient-to-r from-slate-50 to-transparent border-b-2">
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <div className="p-2 rounded-lg bg-slate-100">
+              <Info className="h-5 w-5 text-slate-600" />
+            </div>
             System-Informationen
           </CardTitle>
-          <CardDescription>Technische Details und Versionen</CardDescription>
+          <CardDescription className="text-base">Technische Details und Versionen</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center py-2 border-b">
-              <span className="text-sm font-medium">CRM Version</span>
-              <Badge>1.0.0</Badge>
+        <CardContent className="pt-6">
+          <div className="space-y-0">
+            <div className="flex justify-between items-center py-4 border-b-2 hover:bg-slate-50 px-4 rounded-lg transition-colors">
+              <span className="text-sm font-semibold">CRM Version</span>
+              <Badge className="bg-blue-100 text-blue-700 border-blue-300">1.0.0</Badge>
             </div>
-            <div className="flex justify-between items-center py-2 border-b">
-              <span className="text-sm font-medium">Framework</span>
-              <span className="text-sm text-muted-foreground">
+            <div className="flex justify-between items-center py-4 border-b-2 hover:bg-slate-50 px-4 rounded-lg transition-colors">
+              <span className="text-sm font-semibold">Framework</span>
+              <span className="text-sm text-muted-foreground font-medium">
                 Next.js 15.5.4
               </span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b">
-              <span className="text-sm font-medium">Datenbank</span>
-              <span className="text-sm text-muted-foreground">
+            <div className="flex justify-between items-center py-4 border-b-2 hover:bg-slate-50 px-4 rounded-lg transition-colors">
+              <span className="text-sm font-semibold">Datenbank</span>
+              <span className="text-sm text-muted-foreground font-medium">
                 SQLite (Prisma 6.17.0)
               </span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b">
-              <span className="text-sm font-medium">UI-Bibliothek</span>
-              <span className="text-sm text-muted-foreground">
+            <div className="flex justify-between items-center py-4 border-b-2 hover:bg-slate-50 px-4 rounded-lg transition-colors">
+              <span className="text-sm font-semibold">UI-Bibliothek</span>
+              <span className="text-sm text-muted-foreground font-medium">
                 Shadcn/UI + TailwindCSS
               </span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b">
-              <span className="text-sm font-medium">State Management</span>
-              <span className="text-sm text-muted-foreground">
+            <div className="flex justify-between items-center py-4 border-b-2 hover:bg-slate-50 px-4 rounded-lg transition-colors">
+              <span className="text-sm font-semibold">State Management</span>
+              <span className="text-sm text-muted-foreground font-medium">
                 TanStack Query v5
               </span>
             </div>
-            <div className="flex justify-between items-center py-2">
-              <span className="text-sm font-medium">Entwickelt für</span>
-              <span className="text-sm text-muted-foreground">
+            <div className="flex justify-between items-center py-4 hover:bg-slate-50 px-4 rounded-lg transition-colors">
+              <span className="text-sm font-semibold">Entwickelt für</span>
+              <span className="text-sm text-muted-foreground font-medium">
                 Webdesign-Agenturen
               </span>
             </div>
@@ -183,53 +190,62 @@ export default function SettingsPage() {
       </Card>
 
       {/* Data Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Datenverwaltung</CardTitle>
-          <CardDescription>
+      <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
+        <CardHeader className="bg-gradient-to-r from-slate-50 to-transparent border-b-2">
+          <CardTitle className="text-xl">Datenverwaltung</CardTitle>
+          <CardDescription className="text-base">
             Export, Import und Reset-Funktionen
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="group flex items-center justify-between p-5 border-2 rounded-xl hover:border-blue-300 hover:shadow-md hover:-translate-x-1 transition-all duration-300 bg-gradient-to-r from-blue-50/50 to-transparent">
               <div>
-                <div className="font-medium">Daten exportieren</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="font-semibold text-lg group-hover:text-blue-600 transition-colors">Daten exportieren</div>
+                <div className="text-sm text-muted-foreground mt-1">
                   Exportieren Sie alle Daten als JSON-Datei
                 </div>
               </div>
-              <Button variant="outline" onClick={handleExportData}>
+              <Button 
+                variant="outline" 
+                onClick={handleExportData}
+                className="border-2 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 transition-all duration-300 hover:scale-105 hover:shadow-md"
+              >
                 <Download className="mr-2 h-4 w-4" />
                 Export
               </Button>
             </div>
 
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="group flex items-center justify-between p-5 border-2 rounded-xl hover:border-orange-300 hover:shadow-md hover:-translate-x-1 transition-all duration-300 bg-gradient-to-r from-orange-50/50 to-transparent">
               <div>
-                <div className="font-medium">Cache leeren</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="font-semibold text-lg group-hover:text-orange-600 transition-colors">Cache leeren</div>
+                <div className="text-sm text-muted-foreground mt-1">
                   Löscht lokale Einstellungen und lädt die Seite neu
                 </div>
               </div>
-              <Button variant="outline" onClick={handleClearCache}>
+              <Button 
+                variant="outline" 
+                onClick={handleClearCache}
+                className="border-2 hover:border-orange-500 hover:bg-orange-50 hover:text-orange-600 transition-all duration-300 hover:scale-105 hover:shadow-md"
+              >
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Cache leeren
               </Button>
             </div>
 
-            <div className="flex items-center justify-between p-4 border rounded-lg bg-red-50">
+            <div className="group flex items-center justify-between p-5 border-2 border-red-200 rounded-xl bg-gradient-to-r from-red-50 to-red-100/50 hover:shadow-lg hover:border-red-300 hover:-translate-x-1 transition-all duration-300">
               <div>
-                <div className="font-medium text-red-900">
+                <div className="font-semibold text-lg text-red-900 group-hover:text-red-700 transition-colors">
                   Datenbank zurücksetzen
                 </div>
-                <div className="text-sm text-red-700">
+                <div className="text-sm text-red-700 font-medium mt-1">
                   Löscht alle Daten und erstellt die Datenbank neu
                 </div>
               </div>
               <Button
                 variant="destructive"
                 onClick={handleResetDatabase}
+                className="bg-red-600 hover:bg-red-700 transition-all duration-300 hover:scale-105 hover:shadow-lg shadow-md"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Reset
@@ -240,39 +256,39 @@ export default function SettingsPage() {
       </Card>
 
       {/* About */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Über dieses System</CardTitle>
+      <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-blue-50/20">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-transparent border-b-2">
+          <CardTitle className="text-xl">Über dieses System</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <div className="space-y-4 text-sm text-muted-foreground">
-            <p>
+            <p className="text-base leading-relaxed">
               Dieses CRM-System wurde speziell für Webdesign-Agenturen
               entwickelt und bietet eine umfassende Lösung zur Verwaltung von
               Kunden, Projekten, Aufgaben und Notizen.
             </p>
-            <p>
-              <strong className="text-foreground">Hauptfeatures:</strong>
+            <p className="font-semibold text-foreground text-base">
+              Hauptfeatures:
             </p>
-            <ul className="list-disc list-inside space-y-1 ml-4">
-              <li>Kunden-Verwaltung mit Status-Tracking</li>
-              <li>Projekt-Management mit Budget und Zeitplanung</li>
-              <li>Aufgaben mit Prioritäten und Fälligkeitsdatum</li>
-              <li>Projektbezogene Notizen</li>
-              <li>Live-Dashboard mit Statistiken</li>
-              <li>Responsive Design für alle Geräte</li>
+            <ul className="list-disc list-inside space-y-2 ml-4 text-base">
+              <li className="hover:text-blue-600 transition-colors">Kunden-Verwaltung mit Status-Tracking</li>
+              <li className="hover:text-blue-600 transition-colors">Projekt-Management mit Budget und Zeitplanung</li>
+              <li className="hover:text-blue-600 transition-colors">Aufgaben mit Prioritäten und Fälligkeitsdatum</li>
+              <li className="hover:text-blue-600 transition-colors">Projektbezogene Notizen</li>
+              <li className="hover:text-blue-600 transition-colors">Live-Dashboard mit Statistiken</li>
+              <li className="hover:text-blue-600 transition-colors">Responsive Design für alle Geräte</li>
             </ul>
-            <div className="mt-6 pt-4 border-t">
-              <p className="text-xs">
+            <div className="mt-6 pt-6 border-t-2">
+              <p className="text-xs text-slate-600 font-medium">
                 © 2025 CRM System - Entwickelt mit ❤️ und TypeScript
               </p>
-              <p className="text-xs mt-1">
-                GitHub:{' '}
+              <p className="text-xs mt-2">
+                <span className="font-semibold text-slate-700">GitHub:</span>{' '}
                 <a
                   href="https://github.com/Tobbse007/CRM-system"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
+                  className="text-blue-600 hover:text-blue-700 font-medium hover:underline transition-all duration-300"
                 >
                   Tobbse007/CRM-system
                 </a>

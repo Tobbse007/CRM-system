@@ -37,7 +37,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'bg-slate-900 text-white min-h-screen transition-all duration-300 ease-in-out relative flex flex-col',
+        'bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 text-white min-h-screen transition-all duration-300 ease-in-out relative flex flex-col shadow-2xl',
         isCollapsed ? 'w-20' : 'w-64'
       )}
     >
@@ -45,17 +45,17 @@ export function Sidebar() {
       <div className={cn('flex-1', isCollapsed ? 'p-4' : 'p-6')}>
         {/* Logo/Title */}
         <div className={cn('mb-8 flex items-center', isCollapsed ? 'justify-center' : 'justify-between')}>
-          <div>
+          <div className="transition-all duration-300">
             <h1
               className={cn(
-                'font-bold text-white transition-all duration-300',
+                'font-bold text-white transition-all duration-300 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent',
                 isCollapsed ? 'text-xl text-center' : 'text-2xl'
               )}
             >
               {isCollapsed ? 'C' : 'CRM'}
             </h1>
             {!isCollapsed && (
-              <p className="text-sm text-slate-400 mt-1">Webdesign Agentur</p>
+              <p className="text-sm text-slate-400 mt-1 animate-in fade-in duration-500">Webdesign Agentur</p>
             )}
           </div>
           
@@ -63,7 +63,7 @@ export function Sidebar() {
           {!isCollapsed && (
             <button
               onClick={toggleSidebar}
-              className="h-8 w-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition-colors group"
+              className="h-8 w-8 rounded-lg bg-slate-800 hover:bg-blue-600 flex items-center justify-center transition-all duration-300 group hover:scale-110 hover:shadow-lg hover:shadow-blue-500/50"
               title="Sidebar einklappen"
             >
               <ChevronLeft className="h-5 w-5 text-slate-400 group-hover:text-white transition-colors" />
@@ -72,7 +72,7 @@ export function Sidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="space-y-1">
+        <nav className="space-y-2">
           {navigation.map((item) => {
             const Icon = item.icon;
             const isActive =
@@ -84,16 +84,36 @@ export function Sidebar() {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200',
+                  'group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 relative overflow-hidden',
                   isActive
-                    ? 'bg-blue-600 text-white font-medium shadow-lg shadow-blue-600/50'
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white',
+                    ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold shadow-lg shadow-blue-600/50 scale-105'
+                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-white hover:shadow-md hover:scale-102 hover:-translate-x-1',
                   isCollapsed && 'justify-center px-2'
                 )}
                 title={isCollapsed ? item.name : undefined}
               >
-                <Icon className={cn('w-5 h-5 flex-shrink-0', isCollapsed && 'w-6 h-6')} />
-                {!isCollapsed && <span>{item.name}</span>}
+                {/* Active Indicator */}
+                {isActive && !isCollapsed && (
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-full animate-in slide-in-from-left duration-300" />
+                )}
+                
+                <Icon 
+                  className={cn(
+                    'flex-shrink-0 transition-all duration-300',
+                    isCollapsed ? 'w-6 h-6' : 'w-5 h-5',
+                    isActive ? 'text-white' : 'text-slate-400 group-hover:text-blue-400 group-hover:scale-110'
+                  )} 
+                />
+                {!isCollapsed && (
+                  <span className="transition-all duration-300">
+                    {item.name}
+                  </span>
+                )}
+                
+                {/* Hover Glow Effect */}
+                {!isActive && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-blue-600/5 to-blue-600/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                )}
               </Link>
             );
           })}
@@ -102,26 +122,23 @@ export function Sidebar() {
 
       {/* Expand Button - Shows only when collapsed */}
       {isCollapsed && (
-        <div className="p-4 border-t border-slate-800">
+        <div className="p-4 border-t border-slate-800/50">
           <button
             onClick={toggleSidebar}
-            className="w-full h-10 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition-colors group"
+            className="w-full h-10 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 flex items-center justify-center transition-all duration-300 group hover:shadow-lg hover:shadow-blue-500/50 hover:scale-105"
             title="Sidebar ausklappen"
           >
-            <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-white transition-colors" />
+            <ChevronRight className="h-5 w-5 text-white group-hover:scale-125 transition-transform duration-300" />
           </button>
         </div>
       )}
 
       {/* Footer */}
-      {!isCollapsed && (
-        <div className="p-6 border-t border-slate-800">
-          <div className="text-xs text-slate-500">
-            <p>Version 1.0.0</p>
-            <p className="mt-1">© 2025 CRM System</p>
-          </div>
-        </div>
-      )}
+      <div className={cn('p-4 border-t border-slate-800/50 backdrop-blur-sm', isCollapsed && 'text-center')}>
+        <p className={cn('text-xs text-slate-500 transition-all duration-300', isCollapsed && 'hidden')}>
+          © 2024 CRM System
+        </p>
+      </div>
     </aside>
   );
 }
