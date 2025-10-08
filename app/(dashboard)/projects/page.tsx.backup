@@ -1,14 +1,11 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useProjects } from '@/hooks/use-projects';
 import { useClients } from '@/hooks/use-clients';
 import { ProjectFormDialog } from '@/components/projects/project-form-dialog';
-import { ProjectStats } from '@/components/projects/project-stats';
-import { ProjectTableModern } from '@/components/projects/project-table-modern';
-import { ProjectCardGrid } from '@/components/projects/project-card';
-import { ProjectViewToggle } from '@/components/projects/project-view-toggle';
 import { Button } from '@/components/ui/button';
 import {
   FilterPanel,
@@ -18,21 +15,26 @@ import {
   SavedFilters,
 } from '@/components/filters';
 import type { FilterConfig } from '@/components/filters';
-import { Plus, Filter } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Plus, ExternalLink } from 'lucide-react';
+import { ProjectStatus } from '@prisma/client';
+import { formatCurrency, formatDate } from '@/lib/utils';
 import type { ProjectWithClient } from '@/types';
 import { ExportButton, type ExportFormat } from '@/components/reports/export-button';
 import { exportProjectsToPDF } from '@/lib/export-pdf';
 import { exportProjectsToExcel, exportProjectsToCSV } from '@/lib/export-excel';
 
-type ViewMode = 'table' | 'grid';
-
 export default function ProjectsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  // View mode state
-  const [viewMode, setViewMode] = useState<ViewMode>('table');
-  const [showFilters, setShowFilters] = useState(false);
 
   // Read filters from URL
   const [search, setSearch] = useState(searchParams.get('search') || '');
@@ -208,6 +210,40 @@ export default function ProjectsPage() {
     },
   ];
 
+  const getStatusBadgeVariant = (status: ProjectStatus) => {
+    switch (status) {
+      case ProjectStatus.PLANNING:
+        return 'outline';
+      case ProjectStatus.IN_PROGRESS:
+        return 'default';
+      case ProjectStatus.REVIEW:
+        return 'secondary';
+      case ProjectStatus.COMPLETED:
+        return 'default';
+      case ProjectStatus.ON_HOLD:
+        return 'secondary';
+      default:
+        return 'outline';
+    }
+  };
+
+  const getStatusLabel = (status: ProjectStatus) => {
+    switch (status) {
+      case ProjectStatus.PLANNING:
+        return 'Planung';
+      case ProjectStatus.IN_PROGRESS:
+        return 'In Arbeit';
+      case ProjectStatus.REVIEW:
+        return 'Review';
+      case ProjectStatus.COMPLETED:
+        return 'Abgeschlossen';
+      case ProjectStatus.ON_HOLD:
+        return 'Pausiert';
+      default:
+        return status;
+    }
+  };
+
   const handleExport = async (format: ExportFormat) => {
     if (!filteredProjects || filteredProjects.length === 0) {
       return;
@@ -224,11 +260,6 @@ export default function ProjectsPage() {
     }
   };
 
-  const handleEdit = (project: ProjectWithClient) => {
-    setSelectedProject(project);
-    setDialogOpen(true);
-  };
-
   return (
     <div className="space-y-6">
       <ProjectFormDialog
@@ -237,117 +268,149 @@ export default function ProjectsPage() {
         project={selectedProject}
       />
 
-      {/* Modern Header */}
-      <div className="space-y-4">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
-              Projekte
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Verwalten Sie Ihre Projekte und deren Fortschritt
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-              className={`
-                h-9
-                ${activeFiltersCount > 0 ? 'border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100' : ''}
-              `}
-            >
-              <Filter className="mr-2 h-4 w-4" />
-              Filter
-              {activeFiltersCount > 0 && (
-                <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-blue-600 text-white rounded-full">
-                  {activeFiltersCount}
-                </span>
-              )}
-            </Button>
-            <ExportButton
-              onExport={handleExport}
-              variant="outline"
-              size="sm"
-              disabled={!filteredProjects || filteredProjects.length === 0}
-              className="h-9"
-            />
-            <SavedFilters
-              currentConfig={currentFilterConfig}
-              onLoad={handleLoadFilter}
-              storageKey="crm-project-filters"
-            />
-            <Button 
-              onClick={() => {
-                setSelectedProject(null);
-                setDialogOpen(true);
-              }}
-              size="sm"
-              className="h-9"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Neues Projekt
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <ProjectStats 
-        projects={filteredProjects} 
-        isLoading={isLoading}
-      />
-
-      {/* Advanced Filters */}
-      {showFilters && (
-        <FilterPanel
-          filters={filterConfigs}
-          activeFiltersCount={activeFiltersCount}
-          onReset={handleResetFilters}
-          onApply={updateURL}
-        />
-      )}
-
-      {/* View Controls */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="text-sm text-gray-600">
-          {filteredProjects.length} {filteredProjects.length === 1 ? 'Projekt' : 'Projekte'}
-          {activeFiltersCount > 0 && ' (gefiltert)'}
-        </div>
-        <ProjectViewToggle 
-          view={viewMode} 
-          onViewChange={setViewMode}
-        />
-      </div>
-
-      {/* Error State */}
-      {error && (
-        <div className="card-modern p-6 text-center">
-          <p className="text-sm text-red-600">
-            Fehler beim Laden der Projekte. Bitte versuchen Sie es erneut.
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Projekte</h1>
+          <p className="text-muted-foreground">
+            Verwalten Sie Ihre Projekte und deren Fortschritt
           </p>
         </div>
-      )}
+        <div className="flex items-center gap-3">
+          <ExportButton
+            onExport={handleExport}
+            variant="outline"
+            disabled={!filteredProjects || filteredProjects.length === 0}
+          />
+          <SavedFilters
+            currentConfig={currentFilterConfig}
+            onLoad={handleLoadFilter}
+            storageKey="crm-project-filters"
+          />
+          <Button onClick={() => {
+            setSelectedProject(null);
+            setDialogOpen(true);
+          }}>
+            <Plus className="mr-2 h-4 w-4" />
+            Neues Projekt
+          </Button>
+        </div>
+      </div>
 
-      {/* Content - Table or Grid View */}
-      {!error && (
-        <>
-          {viewMode === 'table' ? (
-            <ProjectTableModern
-              projects={filteredProjects}
-              isLoading={isLoading}
-              onEdit={handleEdit}
-            />
-          ) : (
-            <ProjectCardGrid
-              projects={filteredProjects}
-              isLoading={isLoading}
-              onEdit={handleEdit}
-            />
-          )}
-        </>
-      )}
+      {/* Advanced Filters */}
+      <FilterPanel
+        filters={filterConfigs}
+        activeFiltersCount={activeFiltersCount}
+        onReset={handleResetFilters}
+        onApply={updateURL}
+      />
+
+      {/* Table */}
+      <div className="border rounded-lg">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Projekt</TableHead>
+              <TableHead>Kunde</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Budget</TableHead>
+              <TableHead>Zeitraum</TableHead>
+              <TableHead className="text-right">Aktionen</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  Laden...
+                </TableCell>
+              </TableRow>
+            ) : error ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-destructive">
+                  Fehler beim Laden der Projekte
+                </TableCell>
+              </TableRow>
+            ) : !projects || projects.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  Keine Projekte gefunden
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredProjects.map((project) => (
+                <TableRow key={project.id}>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">{project.name}</div>
+                      {project.description && (
+                        <div className="text-sm text-muted-foreground line-clamp-1">
+                          {project.description}
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Link 
+                      href={`/clients/${project.client.id}`}
+                      className="text-blue-600 hover:underline flex items-center gap-1"
+                    >
+                      {project.client.name}
+                      <ExternalLink className="h-3 w-3" />
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={getStatusBadgeVariant(project.status)}>
+                      {getStatusLabel(project.status)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {project.budget ? (
+                      <span className="font-medium">{formatCurrency(project.budget)}</span>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-sm">
+                      {project.startDate ? formatDate(project.startDate) : '-'}
+                      {project.endDate && (
+                        <>
+                          <br />
+                          <span className="text-muted-foreground">bis {formatDate(project.endDate)}</span>
+                        </>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        asChild
+                      >
+                        <Link href={`/projects/${project.id}`}>
+                          Details
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedProject(project);
+                          setDialogOpen(true);
+                        }}
+                      >
+                        Bearbeiten
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

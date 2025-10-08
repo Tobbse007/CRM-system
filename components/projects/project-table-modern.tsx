@@ -1,0 +1,236 @@
+'use client';
+
+import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { ExternalLink, Calendar, DollarSign } from 'lucide-react';
+import { ProjectStatus } from '@prisma/client';
+import { formatCurrency, formatDate } from '@/lib/utils';
+import type { ProjectWithClient } from '@/types';
+
+interface ProjectTableModernProps {
+  projects: ProjectWithClient[];
+  isLoading?: boolean;
+  onEdit: (project: ProjectWithClient) => void;
+}
+
+export function ProjectTableModern({ 
+  projects, 
+  isLoading, 
+  onEdit 
+}: ProjectTableModernProps) {
+  const getStatusConfig = (status: ProjectStatus) => {
+    switch (status) {
+      case ProjectStatus.PLANNING:
+        return { label: 'Planung', variant: 'outline' as const, color: 'text-blue-600 bg-blue-50 border-blue-200' };
+      case ProjectStatus.IN_PROGRESS:
+        return { label: 'In Arbeit', variant: 'default' as const, color: 'text-cyan-700 bg-cyan-100 border-cyan-200' };
+      case ProjectStatus.REVIEW:
+        return { label: 'Review', variant: 'secondary' as const, color: 'text-purple-600 bg-purple-50 border-purple-200' };
+      case ProjectStatus.COMPLETED:
+        return { label: 'Abgeschlossen', variant: 'default' as const, color: 'text-green-700 bg-green-100 border-green-200' };
+      case ProjectStatus.ON_HOLD:
+        return { label: 'Pausiert', variant: 'secondary' as const, color: 'text-gray-600 bg-gray-100 border-gray-200' };
+      default:
+        return { label: status, variant: 'outline' as const, color: 'text-gray-600 bg-gray-50 border-gray-200' };
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gray-50 hover:bg-gray-50">
+              <TableHead className="font-semibold text-gray-900">Projekt</TableHead>
+              <TableHead className="font-semibold text-gray-900">Kunde</TableHead>
+              <TableHead className="font-semibold text-gray-900">Status</TableHead>
+              <TableHead className="font-semibold text-gray-900">Budget</TableHead>
+              <TableHead className="font-semibold text-gray-900">Zeitraum</TableHead>
+              <TableHead className="text-right font-semibold text-gray-900">Aktionen</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <TableRow key={i}>
+                <TableCell>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                    <div className="h-3 bg-gray-100 rounded w-48 animate-pulse"></div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                </TableCell>
+                <TableCell>
+                  <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
+                </TableCell>
+                <TableCell>
+                  <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                </TableCell>
+                <TableCell>
+                  <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center justify-end gap-2">
+                    <div className="h-8 bg-gray-200 rounded w-16 animate-pulse"></div>
+                    <div className="h-8 bg-gray-200 rounded w-20 animate-pulse"></div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  }
+
+  if (!projects || projects.length === 0) {
+    return (
+      <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+        <div className="p-12 text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+            <svg
+              className="w-8 h-8 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+            Keine Projekte gefunden
+          </h3>
+          <p className="text-sm text-gray-500">
+            Erstellen Sie Ihr erstes Projekt, um loszulegen.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-gray-50 hover:bg-gray-50 border-b border-gray-200">
+            <TableHead className="font-semibold text-gray-900">Projekt</TableHead>
+            <TableHead className="font-semibold text-gray-900">Kunde</TableHead>
+            <TableHead className="font-semibold text-gray-900">Status</TableHead>
+            <TableHead className="font-semibold text-gray-900">Budget</TableHead>
+            <TableHead className="font-semibold text-gray-900">Zeitraum</TableHead>
+            <TableHead className="text-right font-semibold text-gray-900">Aktionen</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {projects.map((project) => {
+            const statusConfig = getStatusConfig(project.status);
+            
+            return (
+              <TableRow 
+                key={project.id}
+                className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+              >
+                <TableCell className="py-4">
+                  <div className="min-w-0">
+                    <Link 
+                      href={`/projects/${project.id}`}
+                      className="font-medium text-gray-900 hover:text-blue-600 transition-colors block truncate"
+                    >
+                      {project.name}
+                    </Link>
+                    {project.description && (
+                      <p className="text-sm text-gray-500 line-clamp-1 mt-0.5">
+                        {project.description}
+                      </p>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell className="py-4">
+                  <Link 
+                    href={`/clients/${project.client.id}`}
+                    className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                  >
+                    {project.client.name}
+                    <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                  </Link>
+                </TableCell>
+                <TableCell className="py-4">
+                  <Badge 
+                    variant={statusConfig.variant}
+                    className={`${statusConfig.color} border font-medium`}
+                  >
+                    {statusConfig.label}
+                  </Badge>
+                </TableCell>
+                <TableCell className="py-4">
+                  {project.budget ? (
+                    <div className="flex items-center gap-1.5 text-sm">
+                      <DollarSign className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                      <span className="font-semibold text-gray-900">
+                        {formatCurrency(project.budget)}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-sm text-gray-400">-</span>
+                  )}
+                </TableCell>
+                <TableCell className="py-4">
+                  <div className="flex items-start gap-1.5 text-sm">
+                    <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <div className="text-gray-900">
+                        {project.startDate ? formatDate(project.startDate) : '-'}
+                      </div>
+                      {project.endDate && (
+                        <div className="text-gray-500 text-xs mt-0.5">
+                          bis {formatDate(project.endDate)}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="text-right py-4">
+                  <div className="flex items-center justify-end gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      asChild
+                      className="h-8 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    >
+                      <Link href={`/projects/${project.id}`}>
+                        Details
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onEdit(project)}
+                      className="h-8 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    >
+                      Bearbeiten
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
