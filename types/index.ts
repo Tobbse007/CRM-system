@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { clientSchema } from '@/lib/validations/client';
+import { projectSchema } from '@/lib/validations/project';
 
 // ============================================
 // Client Types
@@ -30,6 +31,9 @@ export type ProjectWithRelations = Prisma.ProjectGetPayload<{
     notes: true;
   };
 }>;
+
+export type CreateProjectDTO = z.infer<typeof projectSchema>;
+export type UpdateProjectDTO = z.infer<typeof projectSchema>;
 
 // ============================================
 // Task Types
