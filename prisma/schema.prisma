@@ -58,6 +58,7 @@ model Project {
   client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
   tasks       Task[]
   notes       Note[]
+  attachments Attachment[]
   
   // Soft Delete (für zukünftige Erweiterung)
   deletedAt   DateTime?     @map("deleted_at")
@@ -159,4 +160,25 @@ enum ActivityType {
   STATUS_CHANGED @map("status_changed")
   ASSIGNED       @map("assigned")
   COMMENTED      @map("commented")
+}
+
+model Attachment {
+  id          String   @id @default(uuid())
+  filename    String                         // Original filename
+  filepath    String                         // Path where file is stored
+  filesize    Int                            // Size in bytes
+  mimetype    String                         // MIME type (e.g., 'application/pdf')
+  
+  // Relations
+  projectId   String   @map("project_id")
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  // User-Info (wer hat hochgeladen)
+  uploadedBy  String?  @map("uploaded_by")
+  
+  // Timestamps
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([projectId])
+  @@map("attachments")
 }
