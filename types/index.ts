@@ -1,4 +1,6 @@
 import { Prisma } from '@prisma/client';
+import { z } from 'zod';
+import { clientSchema } from '@/lib/validations/client';
 
 // ============================================
 // Client Types
@@ -8,6 +10,9 @@ export type Client = Prisma.ClientGetPayload<{}>;
 export type ClientWithProjects = Prisma.ClientGetPayload<{
   include: { projects: true };
 }>;
+
+export type CreateClientDTO = z.infer<typeof clientSchema>;
+export type UpdateClientDTO = z.infer<typeof clientSchema>;
 
 // ============================================
 // Project Types
@@ -82,7 +87,5 @@ export type ApiResponseWithMeta<T> = {
 // ============================================
 // Enum Helper Types
 // ============================================
-export type ClientStatus = Prisma.ClientStatus;
-export type ProjectStatus = Prisma.ProjectStatus;
-export type TaskStatus = Prisma.TaskStatus;
-export type TaskPriority = Prisma.TaskPriority;
+import { ClientStatus, ProjectStatus, TaskStatus, TaskPriority } from '@prisma/client';
+export type { ClientStatus, ProjectStatus, TaskStatus, TaskPriority };

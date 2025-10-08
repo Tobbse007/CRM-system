@@ -39,9 +39,9 @@ model Client {
 }
 
 enum ClientStatus {
-  ACTIVE    @map("active")
-  INACTIVE  @map("inactive")
-  POTENTIAL @map("potential")
+  LEAD     @map("lead")
+  ACTIVE   @map("active")
+  INACTIVE @map("inactive")
 }
 
 model Project {
