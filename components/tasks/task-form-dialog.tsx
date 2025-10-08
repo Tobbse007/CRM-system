@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { taskSchema } from '@/lib/validations/task';
 import { useCreateTask, useUpdateTask } from '@/hooks/use-tasks';
+import { useProjects } from '@/hooks/use-projects';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -43,7 +44,7 @@ interface TaskFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   task?: Task;
-  projectId: string;
+  projectId?: string; // Made optional
 }
 
 export function TaskFormDialog({
@@ -55,6 +56,7 @@ export function TaskFormDialog({
   const isEditing = !!task;
   const createTask = useCreateTask();
   const updateTask = useUpdateTask();
+  const { data: projects = [] } = useProjects(); // Load projects for dropdown
 
   const form = useForm({
     resolver: zodResolver(taskSchema),
@@ -64,7 +66,7 @@ export function TaskFormDialog({
       status: 'TODO' as const,
       priority: 'MEDIUM' as const,
       dueDate: undefined as string | undefined,
-      projectId: projectId,
+      projectId: projectId || '',
     },
   });
 
@@ -126,6 +128,34 @@ export function TaskFormDialog({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Project Selection - only show if no projectId provided */}
+            {!projectId && (
+              <FormField
+                control={form.control}
+                name="projectId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Projekt *</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Projekt wählen" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {projects.map((project) => (
+                          <SelectItem key={project.id} value={project.id}>
+                            {project.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             {/* Title */}
             <FormField
               control={form.control}
