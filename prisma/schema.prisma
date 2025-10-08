@@ -24,6 +24,7 @@ model User {
   // Relations
   projects    ProjectMember[]
   assignedTasks Task[]
+  timeEntries TimeEntry[]                     // Zeiteinträge des Benutzers
   
   // Timestamps
   createdAt   DateTime   @default(now()) @map("created_at")
@@ -85,6 +86,7 @@ model Project {
   notes       Note[]
   attachments Attachment[]
   members     ProjectMember[]
+  timeEntries TimeEntry[]   // Zeiteinträge für dieses Projekt
   
   // Soft Delete (für zukünftige Erweiterung)
   deletedAt   DateTime?     @map("deleted_at")
@@ -120,6 +122,8 @@ model Task {
   
   assignedToId String?     @map("assigned_to_id")
   assignedTo   User?       @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  
+  timeEntries TimeEntry[]  // Zeiteinträge für diese Aufgabe
   
   // Timestamps
   createdAt   DateTime     @default(now()) @map("created_at")
@@ -240,4 +244,32 @@ enum ProjectMemberRole {
   OWNER  @map("owner")
   MEMBER @map("member")
   VIEWER @map("viewer")
+}
+
+model TimeEntry {
+  id          String    @id @default(uuid())
+  description String?                         // Optionale Beschreibung der Tätigkeit
+  startTime   DateTime  @map("start_time")    // Wann wurde gestartet
+  endTime     DateTime? @map("end_time")      // Wann wurde gestoppt (null = läuft noch)
+  duration    Int?                            // Dauer in Sekunden (wird berechnet bei endTime)
+  
+  // Relations
+  taskId      String?   @map("task_id")       // Optional: Kann auch ohne Task genutzt werden
+  task        Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  
+  projectId   String    @map("project_id")
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  userId      String?   @map("user_id")       // Wer hat die Zeit erfasst
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  // Timestamps
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([projectId])
+  @@index([taskId])
+  @@index([userId])
+  @@index([startTime])
+  @@map("time_entries")
 }

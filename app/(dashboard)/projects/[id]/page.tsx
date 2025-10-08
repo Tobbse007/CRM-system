@@ -23,6 +23,7 @@ import {
   Edit,
   Trash2,
   Activity,
+  Clock,
 } from 'lucide-react';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import Link from 'next/link';
@@ -30,6 +31,9 @@ import type { Task, Note } from '@/types';
 import { ActivityTimeline } from '@/components/activities/activity-timeline';
 import { FileUpload } from '@/components/attachments/file-upload';
 import { TeamMembersList } from '@/components/team-members-list';
+import { Timer } from '@/components/time-tracker/timer';
+import { TimeStats } from '@/components/time-tracker/time-stats';
+import { TimeEntryList } from '@/components/time-tracker/time-entry-list';
 
 const statusConfig = {
   PLANNING: { label: 'Planung', color: 'bg-blue-100 text-blue-800' },
@@ -384,6 +388,40 @@ export default function ProjectDetailPage() {
 
       {/* File Upload Section */}
       <FileUpload projectId={projectId} />
+
+      {/* Time Tracking Section */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              <CardTitle>Zeiterfassung</CardTitle>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Timer */}
+          <Timer projectId={projectId} />
+
+          {/* Time Statistics */}
+          <TimeStats 
+            projectId={projectId} 
+            budget={project.budget ? project.budget / 100 : null} 
+            showBudgetComparison={true} 
+          />
+
+          {/* Time Entry List */}
+          <div>
+            <h3 className="text-sm font-semibold mb-3">Alle Zeiteinträge</h3>
+            <TimeEntryList 
+              projectId={projectId} 
+              showProject={false}
+              showTask={true}
+              showUser={true}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Team Members Section */}
       <TeamMembersList projectId={projectId} />

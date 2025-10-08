@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
-import { logCreated, logDeleted } from '@/lib/activity-logger';
+import { logActivity } from '@/lib/activity-logger';
 
 const addMemberSchema = z.object({
   userId: z.string().uuid(),
@@ -137,17 +137,19 @@ export async function POST(
     });
 
     // Log activity
-    await logCreated({
-      entityType: 'PROJECT_MEMBER',
-      entityId: member.id,
-      description: `${user.name} wurde zum Projekt hinzugefügt`,
+    await logActivity({
+      type: 'CREATED',
+      entityType: 'project',
+      entityId: params.id,
+      entityName: project.name,
+      description: `${user.name} wurde als ${validated.role} zum Team hinzugefügt`,
       metadata: {
-        projectId: params.id,
-        projectName: project.name,
         userId: user.id,
-        userName: user.name,
+        userEmail: user.email,
         role: validated.role,
+        memberId: member.id,
       },
+      userName: 'System',
     });
 
     return NextResponse.json(

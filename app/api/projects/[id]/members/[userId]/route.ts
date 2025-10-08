@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { logDeleted } from '@/lib/activity-logger';
+import { logActivity } from '@/lib/activity-logger';
 
 /**
  * DELETE /api/projects/[id]/members/[userId]
@@ -57,17 +57,18 @@ export async function DELETE(
     });
 
     // Log activity
-    await logDeleted({
-      entityType: 'PROJECT_MEMBER',
-      entityId: member.id,
-      description: `${member.user.name} wurde aus dem Projekt entfernt`,
+    await logActivity({
+      type: 'DELETED',
+      entityType: 'project',
+      entityId: params.id,
+      entityName: member.project.name,
+      description: `${member.user.name} (${member.role}) wurde aus dem Team entfernt`,
       metadata: {
-        projectId: params.id,
-        projectName: member.project.name,
         userId: member.user.id,
-        userName: member.user.name,
+        removedMemberId: member.id,
         role: member.role,
       },
+      userName: 'System',
     });
 
     return NextResponse.json({
