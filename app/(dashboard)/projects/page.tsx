@@ -28,6 +28,9 @@ import { Plus, ExternalLink } from 'lucide-react';
 import { ProjectStatus } from '@prisma/client';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import type { ProjectWithClient } from '@/types';
+import { ExportButton, type ExportFormat } from '@/components/reports/export-button';
+import { exportProjectsToPDF } from '@/lib/export-pdf';
+import { exportProjectsToExcel, exportProjectsToCSV } from '@/lib/export-excel';
 
 export default function ProjectsPage() {
   const router = useRouter();
@@ -241,6 +244,22 @@ export default function ProjectsPage() {
     }
   };
 
+  const handleExport = async (format: ExportFormat) => {
+    if (!filteredProjects || filteredProjects.length === 0) {
+      return;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    if (format === 'pdf') {
+      await exportProjectsToPDF(filteredProjects);
+    } else if (format === 'excel') {
+      await exportProjectsToExcel(filteredProjects);
+    } else if (format === 'csv') {
+      await exportProjectsToCSV(filteredProjects);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <ProjectFormDialog
@@ -258,6 +277,11 @@ export default function ProjectsPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <ExportButton
+            onExport={handleExport}
+            variant="outline"
+            disabled={!filteredProjects || filteredProjects.length === 0}
+          />
           <SavedFilters
             currentConfig={currentFilterConfig}
             onLoad={handleLoadFilter}

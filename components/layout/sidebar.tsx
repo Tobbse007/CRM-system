@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, FolderKanban, CheckSquare, Activity, Settings, ChevronLeft, ChevronRight, UserCog } from 'lucide-react';
+import { Home, Users, FolderKanban, CheckSquare, Activity, Settings, ChevronLeft, ChevronRight, UserCog, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -12,6 +12,7 @@ const navigation = [
   { name: 'Kunden', href: '/clients', icon: Users },
   { name: 'Projekte', href: '/projects', icon: FolderKanban },
   { name: 'Aufgaben', href: '/tasks', icon: CheckSquare },
+  { name: 'Reports', href: '/reports', icon: FileText },
   { name: 'Team', href: '/team', icon: UserCog },
   { name: 'Aktivitäten', href: '/activities', icon: Activity },
   { name: 'Einstellungen', href: '/settings', icon: Settings },
