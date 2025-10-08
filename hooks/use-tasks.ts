@@ -6,7 +6,7 @@ import type { Task, TaskWithProjectAndClient } from '@/types';
 export const taskKeys = {
   all: ['tasks'] as const,
   lists: () => [...taskKeys.all, 'list'] as const,
-  list: (filters: Record<string, string | undefined>) =>
+  list: (filters: UseTasksOptions) =>
     [...taskKeys.lists(), filters] as const,
   details: () => [...taskKeys.all, 'detail'] as const,
   detail: (id: string) => [...taskKeys.details(), id] as const,
