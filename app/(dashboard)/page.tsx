@@ -1,5 +1,6 @@
 'use client';
 
+import { lazy, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
@@ -18,14 +19,17 @@ import {
 } from 'lucide-react';
 import { formatCurrency, formatDate, isDueSoon } from '@/lib/utils';
 import type { ProjectWithClient, Task } from '@/types';
-import { 
-  ProjectStatusChart, 
-  TaskProgressChart, 
-  BudgetOverviewChart,
-  ActivityTrendChart,
-  ClientActivityChart,
-  TeamPerformanceTable,
-} from '@/components/charts';
+
+// Lazy load Charts for better performance
+const ProjectStatusChart = lazy(() => 
+  import('@/components/charts').then(mod => ({ default: mod.ProjectStatusChart }))
+);
+const TaskProgressChart = lazy(() => 
+  import('@/components/charts').then(mod => ({ default: mod.TaskProgressChart }))
+);
+const TeamPerformanceTable = lazy(() => 
+  import('@/components/charts').then(mod => ({ default: mod.TeamPerformanceTable }))
+);
 
 type DashboardStats = {
   clients: {
@@ -222,24 +226,28 @@ export default function DashboardPage() {
               <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">
                 Projekt Status
               </h3>
-              <ProjectStatusChart
-                planning={stats.projects.planning}
-                inProgress={stats.projects.inProgress}
-                review={stats.projects.review}
-                completed={stats.projects.completed}
-                onHold={stats.projects.onHold}
-              />
+              <Suspense fallback={<div className="h-64 skeleton rounded" />}>
+                <ProjectStatusChart
+                  planning={stats.projects.planning}
+                  inProgress={stats.projects.inProgress}
+                  review={stats.projects.review}
+                  completed={stats.projects.completed}
+                  onHold={stats.projects.onHold}
+                />
+              </Suspense>
             </div>
             
             <div className="card-modern p-5">
               <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">
                 Aufgaben Fortschritt
               </h3>
-              <TaskProgressChart
-                todo={stats.tasks.todo}
-                inProgress={stats.tasks.inProgress}
-                done={stats.tasks.done}
-              />
+              <Suspense fallback={<div className="h-64 skeleton rounded" />}>
+                <TaskProgressChart
+                  todo={stats.tasks.todo}
+                  inProgress={stats.tasks.inProgress}
+                  done={stats.tasks.done}
+                />
+              </Suspense>
             </div>
           </div>
 
@@ -249,7 +257,9 @@ export default function DashboardPage() {
               <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">
                 Team Performance
               </h3>
-              <TeamPerformanceTable teamStats={analytics.teamStats} />
+              <Suspense fallback={<div className="h-48 skeleton rounded" />}>
+                <TeamPerformanceTable teamStats={analytics.teamStats} />
+              </Suspense>
             </div>
           )}
         </div>

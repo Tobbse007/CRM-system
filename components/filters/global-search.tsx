@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Search, Loader2, FileText, FolderKanban, Users, CheckSquare, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
@@ -10,6 +10,23 @@ import {
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+
+// Debounce hook for performance
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 
 interface SearchResult {
   id: string;
@@ -31,10 +48,14 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  
+  // Debounce search query for performance (300ms)
+  const debouncedQuery = useDebounce(query, 300);
 
   const search = useCallback(async (searchQuery: string) => {
     if (!searchQuery || searchQuery.length < 2) {
       setResults([]);
+      setLoading(false);
       return;
     }
 
@@ -53,14 +74,17 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
     }
   }, []);
 
-  // Debounced search
+  // Use debounced query for search
   useEffect(() => {
-    const timer = setTimeout(() => {
-      search(query);
-    }, 300);
+    search(debouncedQuery);
+  }, [debouncedQuery, search]);
 
-    return () => clearTimeout(timer);
-  }, [query, search]);
+  // Show loading immediately when typing
+  useEffect(() => {
+    if (query.length >= 2 && query !== debouncedQuery) {
+      setLoading(true);
+    }
+  }, [query, debouncedQuery]);
 
   // Reset on close
   useEffect(() => {
