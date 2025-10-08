@@ -95,12 +95,12 @@ export default function ClientsPage() {
             className="pl-9"
           />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <Select value={statusFilter || 'all'} onValueChange={(value) => setStatusFilter(value === 'all' ? '' : value)}>
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Alle Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Alle Status</SelectItem>
+            <SelectItem value="all">Alle Status</SelectItem>
             <SelectItem value="LEAD">Lead</SelectItem>
             <SelectItem value="ACTIVE">Aktiv</SelectItem>
             <SelectItem value="INACTIVE">Inaktiv</SelectItem>
