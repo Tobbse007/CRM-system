@@ -11,6 +11,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Card } from '@/components/ui/card';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { Mail, Phone, Globe, Building2, Edit, MoreVertical, FolderKanban, CheckSquare } from 'lucide-react';
 import { ClientStatus } from '@prisma/client';
 import type { Client } from '@/types';
@@ -116,6 +122,7 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
   return (
     <Card className="shadow-[0_4px_20px_rgb(0,0,0,0.06)] border border-gray-200 bg-white overflow-hidden rounded-2xl p-0">
       <div className="overflow-x-auto">
+      <TooltipProvider>
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50/80 hover:bg-gray-50/80 border-b border-gray-200">
@@ -149,28 +156,42 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
                       {/* Compact Stats Badges - Größer und Klickbar */}
                       <div className="flex items-center gap-1.5 mt-1">
                         {(client as any)._count?.projects > 0 && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.push(`/projects?client=${client.id}`);
-                            }}
-                            className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors cursor-pointer"
-                          >
-                            <FolderKanban className="h-3 w-3" />
-                            {(client as any)._count.projects}
-                          </button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  router.push(`/projects?client=${client.id}`);
+                                }}
+                                className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors cursor-pointer"
+                              >
+                                <FolderKanban className="h-3 w-3" />
+                                {(client as any)._count.projects}
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Projekte ansehen</p>
+                            </TooltipContent>
+                          </Tooltip>
                         )}
                         {(client as any)._count?.tasks > 0 && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.push(`/tasks?client=${client.id}`);
-                            }}
-                            className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 hover:border-purple-300 transition-colors cursor-pointer"
-                          >
-                            <CheckSquare className="h-3 w-3" />
-                            {(client as any)._count.tasks}
-                          </button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  router.push(`/tasks?client=${client.id}`);
+                                }}
+                                className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 hover:border-purple-300 transition-colors cursor-pointer"
+                              >
+                                <CheckSquare className="h-3 w-3" />
+                                {(client as any)._count.tasks}
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Tasks ansehen</p>
+                            </TooltipContent>
+                          </Tooltip>
                         )}
                       </div>
                     </div>
@@ -249,7 +270,7 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
                         </Badge>
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-40">
+                    <DropdownMenuContent align="start" className="w-40 bg-white">
                       <DropdownMenuItem 
                         onClick={(e) => {
                           e.stopPropagation();
@@ -334,6 +355,7 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
           })}
         </TableBody>
       </Table>
+      </TooltipProvider>
       </div>
     </Card>
   );

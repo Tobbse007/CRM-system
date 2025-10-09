@@ -93,6 +93,66 @@ export async function PUT(
   }
 }
 
+// PATCH /api/clients/[id] - Kunden partiell aktualisieren (z.B. nur Status)
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const body = await request.json();
+    
+    // Partial validation - nur die übergebenen Felder validieren
+    const partialSchema = clientSchema.partial();
+    const validated = partialSchema.parse(body);
+
+    // Check if client exists
+    const existingClient = await prisma.client.findUnique({
+      where: { id: params.id, deletedAt: null },
+    });
+
+    if (!existingClient) {
+      return NextResponse.json(
+        { success: false, error: 'Kunde nicht gefunden' },
+        { status: 404 }
+      );
+    }
+
+    // Check email uniqueness (if email is being changed)
+    if (validated.email && validated.email !== existingClient.email) {
+      const emailExists = await prisma.client.findUnique({
+        where: { email: validated.email },
+      });
+
+      if (emailExists) {
+        return NextResponse.json(
+          { success: false, error: 'E-Mail wird bereits verwendet' },
+          { status: 400 }
+        );
+      }
+    }
+
+    const client = await prisma.client.update({
+      where: { id: params.id },
+      data: validated,
+    });
+
+    return NextResponse.json({ success: true, data: client });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { success: false, error: 'Validierungsfehler', issues: error.issues },
+        { status: 400 }
+      );
+    }
+
+    console.error('PATCH /api/clients/[id] error:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to update client' },
+      { status: 500 }
+    );
+  }
+}
+
 // DELETE /api/clients/[id] - Kunden löschen
 export async function DELETE(
   request: NextRequest,
