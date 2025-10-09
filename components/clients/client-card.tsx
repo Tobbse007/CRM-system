@@ -80,7 +80,7 @@ export function ClientCard({ client, onEdit }: ClientCardProps) {
 
   return (
     <TooltipProvider delayDuration={800}>
-      <div className="group card-modern hover-lift transition-all duration-200">
+      <div className="group card-modern hover-lift transition-all duration-300 hover:shadow-xl hover:scale-[1.02]">
         {/* Header with Avatar */}
         <div className="p-5 pb-4">
           <div className="flex items-start gap-4 mb-4">
@@ -236,10 +236,10 @@ export function ClientCard({ client, onEdit }: ClientCardProps) {
       <div className="p-5 pt-4 space-y-2.5">
         {/* Email */}
         <div className="flex items-center gap-2 text-sm">
-          <Mail className="h-4 w-4 text-gray-400 flex-shrink-0" />
+          <Mail className="h-4 w-4 text-gray-400 flex-shrink-0 transition-colors group-hover:text-blue-500" />
           <a
             href={`mailto:${client.email}`}
-            className="text-gray-700 hover:text-blue-600 transition-colors truncate flex-1"
+            className="text-gray-700 hover:text-blue-600 transition-all duration-200 truncate flex-1 hover:underline"
           >
             {client.email}
           </a>
@@ -248,10 +248,10 @@ export function ClientCard({ client, onEdit }: ClientCardProps) {
         {/* Phone */}
         {client.phone && (
           <div className="flex items-center gap-2 text-sm">
-            <Phone className="h-4 w-4 text-gray-400 flex-shrink-0" />
+            <Phone className="h-4 w-4 text-gray-400 flex-shrink-0 transition-colors group-hover:text-green-500" />
             <a
               href={`tel:${client.phone}`}
-              className="text-gray-700 hover:text-green-600 transition-colors"
+              className="text-gray-700 hover:text-green-600 transition-all duration-200 hover:underline"
             >
               {client.phone}
             </a>
@@ -261,12 +261,12 @@ export function ClientCard({ client, onEdit }: ClientCardProps) {
         {/* Website */}
         {client.website && (
           <div className="flex items-center gap-2 text-sm">
-            <Globe className="h-4 w-4 text-gray-400 flex-shrink-0" />
+            <Globe className="h-4 w-4 text-gray-400 flex-shrink-0 transition-colors group-hover:text-purple-500" />
             <a
               href={client.website.startsWith('http') ? client.website : `https://${client.website}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-700 hover:text-purple-600 transition-colors truncate flex-1"
+              className="text-gray-700 hover:text-purple-600 transition-all duration-200 truncate flex-1 hover:underline"
             >
               {client.website.replace(/^https?:\/\//, '')}
             </a>
@@ -294,7 +294,7 @@ export function ClientCard({ client, onEdit }: ClientCardProps) {
           variant="outline"
           size="sm"
           onClick={() => onEdit(client)}
-          className="h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-50 border-gray-200 ml-auto"
+          className="h-8 text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-300 border-gray-200 ml-auto transition-all duration-200"
         >
           <Edit className="h-3.5 w-3.5 mr-1.5" />
           Bearbeiten
@@ -316,7 +316,14 @@ export function ClientCardGrid({ clients, isLoading, onEdit }: ClientCardGridPro
     return (
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="card-modern animate-pulse">
+          <div 
+            key={i} 
+            className="card-modern animate-pulse opacity-0 animate-fade-in-up"
+            style={{ 
+              animationDelay: `${i * 50}ms`,
+              animationFillMode: 'forwards'
+            }}
+          >
             <div className="p-5 pb-4">
               <div className="flex items-start gap-4 mb-4">
                 <div className="w-12 h-12 rounded-full bg-gray-200"></div>
@@ -364,8 +371,17 @@ export function ClientCardGrid({ clients, isLoading, onEdit }: ClientCardGridPro
 
   return (
     <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-      {clients.map((client) => (
-        <ClientCard key={client.id} client={client} onEdit={onEdit} />
+      {clients.map((client, index) => (
+        <div
+          key={client.id}
+          className="opacity-0 animate-fade-in-up"
+          style={{ 
+            animationDelay: `${index * 50}ms`,
+            animationFillMode: 'forwards'
+          }}
+        >
+          <ClientCard client={client} onEdit={onEdit} />
+        </div>
       ))}
     </div>
   );

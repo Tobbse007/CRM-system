@@ -276,9 +276,9 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
                           e.stopPropagation();
                           updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.ACTIVE });
                         }}
-                        className="cursor-pointer"
+                        className="cursor-pointer hover:bg-green-50 hover:text-green-700 focus:bg-green-50 focus:text-green-700 py-2"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></span>
+                        <span className="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
                         Aktiv
                       </DropdownMenuItem>
                       <DropdownMenuItem 
@@ -286,9 +286,9 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
                           e.stopPropagation();
                           updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.LEAD });
                         }}
-                        className="cursor-pointer"
+                        className="cursor-pointer hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700 py-2"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></span>
+                        <span className="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
                         Lead
                       </DropdownMenuItem>
                       <DropdownMenuItem 
@@ -296,9 +296,9 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
                           e.stopPropagation();
                           updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.INACTIVE });
                         }}
-                        className="cursor-pointer"
+                        className="cursor-pointer hover:bg-gray-50 hover:text-gray-700 focus:bg-gray-50 focus:text-gray-700 py-2"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-gray-500 mr-2"></span>
+                        <span className="w-2 h-2 rounded-full bg-gray-500 mr-2"></span>
                         Inaktiv
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -332,18 +332,39 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-48">
-                        <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                          <Mail className="h-4 w-4 mr-2" />
+                      <DropdownMenuContent align="end" className="w-48 bg-white p-1">
+                        <DropdownMenuItem 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.location.href = `mailto:${client.email}`;
+                          }}
+                          className="cursor-pointer hover:bg-blue-50 hover:text-blue-600 focus:bg-blue-50 focus:text-blue-600 py-2 px-3 rounded-md"
+                        >
+                          <Mail className="h-4 w-4 mr-3" />
                           E-Mail senden
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                          <Phone className="h-4 w-4 mr-2" />
+                        <DropdownMenuItem 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (client.phone) window.location.href = `tel:${client.phone}`;
+                          }}
+                          className="cursor-pointer hover:bg-blue-50 hover:text-blue-600 focus:bg-blue-50 focus:text-blue-600 py-2 px-3 rounded-md"
+                        >
+                          <Phone className="h-4 w-4 mr-3" />
                           Anrufen
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                          <Globe className="h-4 w-4 mr-2" />
+                        <DropdownMenuSeparator className="my-1" />
+                        <DropdownMenuItem 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (client.website) {
+                              const url = client.website.startsWith('http') ? client.website : `https://${client.website}`;
+                              window.open(url, '_blank');
+                            }
+                          }}
+                          className="cursor-pointer hover:bg-blue-50 hover:text-blue-600 focus:bg-blue-50 focus:text-blue-600 py-2 px-3 rounded-md"
+                        >
+                          <Globe className="h-4 w-4 mr-3" />
                           Website öffnen
                         </DropdownMenuItem>
                       </DropdownMenuContent>
