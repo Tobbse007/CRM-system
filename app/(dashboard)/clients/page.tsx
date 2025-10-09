@@ -112,7 +112,7 @@ export default function ClientsPage() {
 
       {/* Filters */}
       {showFilters && (
-        <div className="card-modern p-4 bg-white shadow-sm border-0">
+        <div className="shadow-[0_2px_12px_rgb(0,0,0,0.04)] border border-gray-200 bg-white overflow-hidden rounded-2xl p-5">
           <div className="flex items-center gap-4">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -120,17 +120,17 @@ export default function ClientsPage() {
                 placeholder="Suchen nach Name, E-Mail oder Firma..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 h-9"
+                className="pl-9 h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
             <Select
               value={statusFilter || 'all'}
               onValueChange={(value) => setStatusFilter(value === 'all' ? '' : value)}
             >
-              <SelectTrigger className="w-[180px] h-9">
+              <SelectTrigger className="w-[180px] h-10 border-gray-200">
                 <SelectValue placeholder="Alle Status" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 <SelectItem value="all">Alle Status</SelectItem>
                 <SelectItem value="LEAD">Lead</SelectItem>
                 <SelectItem value="ACTIVE">Aktiv</SelectItem>
@@ -145,7 +145,7 @@ export default function ClientsPage() {
                   setSearch('');
                   setStatusFilter('');
                 }}
-                className="h-9 hover:bg-blue-50 hover:text-blue-600"
+                className="h-10 hover:bg-blue-50 hover:text-blue-600 px-4"
               >
                 Zurücksetzen
               </Button>

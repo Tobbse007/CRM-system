@@ -83,57 +83,59 @@ export function ClientCard({ client, onEdit }: ClientCardProps) {
       <div className="group card-modern hover-lift transition-all duration-200">
         {/* Header with Avatar */}
         <div className="p-5 pb-4">
-          {/* Stats Badges oben rechts */}
-          <div className="flex items-start justify-end gap-2 mb-3">
-            {(client as any)._count?.projects > 0 && (
-              <Tooltip delayDuration={800}>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      router.push(`/projects?client=${client.id}`);
-                    }}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors cursor-pointer"
-                  >
-                    <FolderKanban className="h-3.5 w-3.5" />
-                    {(client as any)._count.projects}
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent className="bg-white text-[11px] px-2 py-1" sideOffset={5} side="top">
-                  <p>Projekte ansehen</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
-            {(client as any)._count?.tasks > 0 && (
-              <Tooltip delayDuration={800}>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      router.push(`/tasks?client=${client.id}`);
-                    }}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-sm font-medium bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 hover:border-purple-300 transition-colors cursor-pointer"
-                  >
-                    <CheckSquare className="h-3.5 w-3.5" />
-                    {(client as any)._count.tasks}
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent className="bg-white text-[11px] px-2 py-1" sideOffset={5} side="top">
-                  <p>Tasks ansehen</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
-          </div>
-
           <div className="flex items-start gap-4 mb-4">
             {/* Avatar */}
             <ClientAvatar name={client.name} size="lg" />
 
-            {/* Name */}
-            <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-semibold text-gray-900 truncate mb-1">
-                {client.name}
-              </h3>
+            {/* Name & Stats Badges */}
+            <div className="flex-1 min-w-0 flex items-start justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-semibold text-gray-900 truncate mb-1">
+                  {client.name}
+                </h3>
+              </div>
+              
+              {/* Stats Badges rechts neben Namen */}
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                {(client as any)._count?.projects > 0 && (
+                  <Tooltip delayDuration={800}>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/projects?client=${client.id}`);
+                        }}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors cursor-pointer"
+                      >
+                        <FolderKanban className="h-3.5 w-3.5" />
+                        {(client as any)._count.projects}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-white text-[11px] px-2 py-1" sideOffset={5} side="top">
+                      <p>Projekte ansehen</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+                {(client as any)._count?.tasks > 0 && (
+                  <Tooltip delayDuration={800}>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/tasks?client=${client.id}`);
+                        }}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-sm font-medium bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 hover:border-purple-300 transition-colors cursor-pointer"
+                      >
+                        <CheckSquare className="h-3.5 w-3.5" />
+                        {(client as any)._count.tasks}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-white text-[11px] px-2 py-1" sideOffset={5} side="top">
+                      <p>Tasks ansehen</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
             </div>
           </div>
 
