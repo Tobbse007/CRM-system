@@ -2,11 +2,25 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ClientAvatar } from './client-avatar';
 import { ClientQuickActions } from './client-quick-actions';
-import { Mail, Phone, Globe, Building2, Edit, User } from 'lucide-react';
+import { Mail, Phone, Globe, Building2, Edit, User, FolderKanban, CheckSquare } from 'lucide-react';
 import { ClientStatus } from '@prisma/client';
 import type { Client } from '@/types';
+import { useRouter } from 'next/navigation';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface ClientCardProps {
   client: Client;
@@ -14,6 +28,25 @@ interface ClientCardProps {
 }
 
 export function ClientCard({ client, onEdit }: ClientCardProps) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  // Mutation für Status-Update
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ clientId, status }: { clientId: string; status: ClientStatus }) => {
+      const response = await fetch(`/api/clients/${clientId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (!response.ok) throw new Error('Failed to update status');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+    },
+  });
+
   const getStatusConfig = (status: ClientStatus) => {
     switch (status) {
       case ClientStatus.ACTIVE:
@@ -46,27 +79,101 @@ export function ClientCard({ client, onEdit }: ClientCardProps) {
   const statusConfig = getStatusConfig(client.status);
 
   return (
-    <div className="group card-modern hover-lift transition-all duration-200">
-      {/* Header with Avatar */}
-      <div className="p-5 pb-4">
-        <div className="flex items-start gap-4 mb-4">
-          {/* Avatar */}
-          <ClientAvatar name={client.name} size="lg" />
+    <TooltipProvider delayDuration={500}>
+      <div className="group card-modern hover-lift transition-all duration-200">
+        {/* Header with Avatar */}
+        <div className="p-5 pb-4">
+          <div className="flex items-start gap-4 mb-4">
+            {/* Avatar */}
+            <ClientAvatar name={client.name} size="lg" />
 
-          {/* Name & Status */}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-gray-900 truncate mb-1">
-              {client.name}
-            </h3>
-            <Badge
-              variant="outline"
-              className={`${statusConfig.color} border font-medium`}
-            >
-              <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dotColor} mr-1.5`}></span>
-              {statusConfig.label}
-            </Badge>
+            {/* Name & Status */}
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-semibold text-gray-900 truncate mb-1">
+                {client.name}
+              </h3>
+              
+              {/* Klickbarer Status mit Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md">
+                    <Badge
+                      variant="outline"
+                      className={`${statusConfig.color} border font-medium cursor-pointer hover:opacity-80 transition-opacity`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dotColor} mr-1.5`}></span>
+                      {statusConfig.label}
+                    </Badge>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-40 bg-white">
+                  <DropdownMenuItem 
+                    onClick={() => updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.ACTIVE })}
+                    className="cursor-pointer"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></span>
+                    Aktiv
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.LEAD })}
+                    className="cursor-pointer"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></span>
+                    Lead
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.INACTIVE })}
+                    className="cursor-pointer"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-gray-500 mr-2"></span>
+                    Inaktiv
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Stats Badges mit Tooltips */}
+              <div className="flex items-center gap-1.5 mt-2">
+                {(client as any)._count?.projects > 0 && (
+                  <Tooltip delayDuration={500}>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/projects?client=${client.id}`);
+                        }}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors cursor-pointer"
+                      >
+                        <FolderKanban className="h-3 w-3" />
+                        {(client as any)._count.projects}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-white">
+                      <p>Projekte ansehen</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+                {(client as any)._count?.tasks > 0 && (
+                  <Tooltip delayDuration={500}>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/tasks?client=${client.id}`);
+                        }}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 hover:border-purple-300 transition-colors cursor-pointer"
+                      >
+                        <CheckSquare className="h-3 w-3" />
+                        {(client as any)._count.tasks}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-white">
+                      <p>Tasks ansehen</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
 
         {/* Company */}
         {client.company && (
@@ -149,6 +256,7 @@ export function ClientCard({ client, onEdit }: ClientCardProps) {
         </Button>
       </div>
     </div>
+    </TooltipProvider>
   );
 }
 

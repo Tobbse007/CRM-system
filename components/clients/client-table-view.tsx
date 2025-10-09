@@ -122,7 +122,7 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
   return (
     <Card className="shadow-[0_4px_20px_rgb(0,0,0,0.06)] border border-gray-200 bg-white overflow-hidden rounded-2xl p-0">
       <div className="overflow-x-auto">
-      <TooltipProvider>
+      <TooltipProvider delayDuration={500}>
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50/80 hover:bg-gray-50/80 border-b border-gray-200">
@@ -169,7 +169,7 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
                                 {(client as any)._count.projects}
                               </button>
                             </TooltipTrigger>
-                            <TooltipContent>
+                            <TooltipContent className="bg-white">
                               <p>Projekte ansehen</p>
                             </TooltipContent>
                           </Tooltip>
@@ -188,7 +188,7 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
                                 {(client as any)._count.tasks}
                               </button>
                             </TooltipTrigger>
-                            <TooltipContent>
+                            <TooltipContent className="bg-white">
                               <p>Tasks ansehen</p>
                             </TooltipContent>
                           </Tooltip>
