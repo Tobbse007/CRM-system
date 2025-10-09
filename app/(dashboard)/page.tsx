@@ -31,6 +31,17 @@ const TeamPerformanceTable = lazy(() =>
   import('@/components/charts').then(mod => ({ default: mod.TeamPerformanceTable }))
 );
 
+// New 3D Charts
+const RevenueChart3D = lazy(() =>
+  import('@/components/charts').then(mod => ({ default: mod.RevenueChart3D }))
+);
+const ProjectDistribution3D = lazy(() =>
+  import('@/components/charts').then(mod => ({ default: mod.ProjectDistribution3D }))
+);
+const TaskCompletion3D = lazy(() =>
+  import('@/components/charts').then(mod => ({ default: mod.TaskCompletion3D }))
+);
+
 type DashboardStats = {
   clients: {
     total: number;
@@ -118,6 +129,29 @@ export default function DashboardPage() {
     staleTime: 60000, // 1 minute
   });
 
+  // Mock data for 3D Charts (until API is extended)
+  const revenueData = [
+    { month: 'Jan', revenue: 45000, expenses: 28000, profit: 17000 },
+    { month: 'Feb', revenue: 52000, expenses: 31000, profit: 21000 },
+    { month: 'Mär', revenue: 48000, expenses: 29000, profit: 19000 },
+    { month: 'Apr', revenue: 61000, expenses: 35000, profit: 26000 },
+    { month: 'Mai', revenue: 55000, expenses: 32000, profit: 23000 },
+    { month: 'Jun', revenue: 67000, expenses: 38000, profit: 29000 },
+    { month: 'Jul', revenue: 72000, expenses: 41000, profit: 31000 },
+    { month: 'Aug', revenue: 68000, expenses: 39000, profit: 29000 },
+  ];
+
+  const taskCompletionData = [
+    { week: 'KW 38', completed: 12, created: 15, completionRate: 80 },
+    { week: 'KW 39', completed: 18, created: 20, completionRate: 90 },
+    { week: 'KW 40', completed: 15, created: 18, completionRate: 83 },
+    { week: 'KW 41', completed: 22, created: 25, completionRate: 88 },
+    { week: 'KW 42', completed: 20, created: 22, completionRate: 91 },
+    { week: 'KW 43', completed: 25, created: 28, completionRate: 89 },
+    { week: 'KW 44', completed: 19, created: 21, completionRate: 90 },
+    { week: 'KW 45', completed: 24, created: 26, completionRate: 92 },
+  ];
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -197,6 +231,48 @@ export default function DashboardPage() {
         />
       </div>
 
+      {/* 3D Analytics Charts - Premium Design */}
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
+            <BarChart3 className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+              Advanced Analytics
+            </h2>
+            <p className="text-sm text-gray-500">
+              Detaillierte Einblicke in Performance und Trends
+            </p>
+          </div>
+        </div>
+
+        {/* Revenue Chart - Full Width */}
+        <Suspense fallback={<div className="h-[500px] skeleton rounded-2xl" />}>
+          <RevenueChart3D data={revenueData} isLoading={isLoading} />
+        </Suspense>
+
+        {/* Distribution & Completion - Side by Side */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <Suspense fallback={<div className="h-[550px] skeleton rounded-2xl" />}>
+            <ProjectDistribution3D 
+              data={{
+                planning: stats.projects.planning,
+                inProgress: stats.projects.inProgress,
+                review: stats.projects.review,
+                completed: stats.projects.completed,
+                onHold: stats.projects.onHold,
+              }}
+              isLoading={isLoading}
+            />
+          </Suspense>
+
+          <Suspense fallback={<div className="h-[550px] skeleton rounded-2xl" />}>
+            <TaskCompletion3D data={taskCompletionData} isLoading={isLoading} />
+          </Suspense>
+        </div>
+      </div>
+
       {/* Analytics Section */}
       {!analyticsLoading && analytics && (
         <div className="space-y-4">
@@ -258,7 +334,7 @@ export default function DashboardPage() {
                 Team Performance
               </h3>
               <Suspense fallback={<div className="h-48 skeleton rounded" />}>
-                <TeamPerformanceTable teamStats={analytics.teamStats} />
+                <TeamPerformanceTable team={analytics.teamStats} />
               </Suspense>
             </div>
           )}
