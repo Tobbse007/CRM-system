@@ -93,20 +93,21 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
   }
 
   return (
-    <Card className="shadow-[0_4px_20px_rgb(0,0,0,0.06)] border border-gray-200 bg-white overflow-hidden rounded-2xl">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-gray-50/80 hover:bg-gray-50/80 border-b border-gray-200">
-            <TableHead className="font-bold text-gray-900 text-sm w-[200px]">Kunde</TableHead>
-            <TableHead className="font-bold text-gray-900 text-sm w-[180px]">Firma</TableHead>
-            <TableHead className="font-bold text-gray-900 text-sm w-[220px]">E-Mail</TableHead>
-            <TableHead className="font-bold text-gray-900 text-sm w-[160px]">Telefon</TableHead>
-            <TableHead className="font-bold text-gray-900 text-sm w-[200px]">Website</TableHead>
-            <TableHead className="font-bold text-gray-900 text-sm w-[120px]">Status</TableHead>
-            <TableHead className="font-bold text-gray-900 text-sm text-right w-[140px]">Aktionen</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+    <Card className="shadow-[0_4px_20px_rgb(0,0,0,0.06)] border border-gray-200 bg-white overflow-hidden rounded-2xl p-0">
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gray-50/80 hover:bg-gray-50/80 border-b border-gray-200">
+              <TableHead className="font-bold text-gray-900 text-sm w-[200px] h-11 py-3">Kunde</TableHead>
+              <TableHead className="font-bold text-gray-900 text-sm w-[180px] h-11 py-3">Firma</TableHead>
+              <TableHead className="font-bold text-gray-900 text-sm w-[220px] h-11 py-3">E-Mail</TableHead>
+              <TableHead className="font-bold text-gray-900 text-sm w-[160px] h-11 py-3">Telefon</TableHead>
+              <TableHead className="font-bold text-gray-900 text-sm w-[200px] h-11 py-3">Website</TableHead>
+              <TableHead className="font-bold text-gray-900 text-sm w-[120px] h-11 py-3">Status</TableHead>
+              <TableHead className="font-bold text-gray-900 text-sm text-right w-[140px] h-11 py-3">Aktionen</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
           {clients.map((client) => {
             const statusConfig = getStatusConfig(client.status);
             
@@ -247,6 +248,7 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
           })}
         </TableBody>
       </Table>
+      </div>
     </Card>
   );
 }

@@ -61,53 +61,49 @@ export default function ClientsPage() {
         client={selectedClient}
       />
 
-      {/* Modern Header */}
-      <div className="space-y-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Users className="h-8 w-8 text-gray-900" />
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-                Kunden
-              </h1>
-              <p className="text-sm text-gray-600 font-medium mt-1">
-                Verwalten Sie Ihre Kunden und deren Projekte
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <ViewToggle view={view} onViewChange={handleViewChange} />
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-              className={`
-                h-9 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-colors
-                ${activeFiltersCount > 0 ? 'border-blue-300 bg-blue-50 text-blue-700' : ''}
-              `}
-            >
-              <Filter className="mr-2 h-4 w-4" />
-              Filter
-              {activeFiltersCount > 0 && (
-                <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-blue-600 text-white rounded-full">
-                  {activeFiltersCount}
-                </span>
-              )}
-            </Button>
-            <Button
-              onClick={() => {
-                setSelectedClient(null);
-                setDialogOpen(true);
-              }}
-              variant="ghost"
-              size="sm"
-              className="h-9 text-gray-900 hover:text-blue-600 hover:bg-blue-50 transition-colors font-semibold"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Neuer Kunde
-            </Button>
-          </div>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-3">
+            <Users className="h-8 w-8" />
+            Kunden
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Verwalten Sie Ihre Kunden und deren Projekte
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <ViewToggle view={view} onViewChange={handleViewChange} />
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowFilters(!showFilters)}
+            className={`
+              h-9 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-colors
+              ${activeFiltersCount > 0 ? 'border-blue-300 bg-blue-50 text-blue-700' : ''}
+            `}
+          >
+            <Filter className="mr-2 h-4 w-4" />
+            Filter
+            {activeFiltersCount > 0 && (
+              <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-blue-600 text-white rounded-full">
+                {activeFiltersCount}
+              </span>
+            )}
+          </Button>
+          <Button
+            onClick={() => {
+              setSelectedClient(null);
+              setDialogOpen(true);
+            }}
+            variant="ghost"
+            size="sm"
+            className="h-9 text-gray-900 hover:text-blue-600 hover:bg-blue-50 transition-colors font-semibold"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Neuer Kunde
+          </Button>
         </div>
       </div>
 
