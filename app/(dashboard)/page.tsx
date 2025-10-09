@@ -224,7 +224,7 @@ export default function DashboardPage() {
           value="12,450"
           trend={{ value: "18.8%", isPositive: true }}
           icon={Eye}
-          iconColor="text-blue-500"
+          iconColor="text-blue-600"
         />
         
         <StatCard
@@ -232,7 +232,7 @@ export default function DashboardPage() {
           value={formatCurrency(stats.budget.total)}
           trend={{ value: "34.0%", isPositive: false }}
           icon={DollarSign}
-          iconColor="text-green-500"
+          iconColor="text-blue-600"
         />
         
         <StatCard
@@ -240,7 +240,7 @@ export default function DashboardPage() {
           value={stats.clients.total}
           trend={{ value: `${stats.clients.active} aktiv`, isPositive: true }}
           icon={Users}
-          iconColor="text-purple-500"
+          iconColor="text-blue-600"
         />
         
         <StatCard
@@ -248,14 +248,14 @@ export default function DashboardPage() {
           value={stats.projects.total}
           trend={{ value: `${completionRate}% fertig`, isPositive: true }}
           icon={FolderKanban}
-          iconColor="text-cyan-500"
+          iconColor="text-blue-600"
         />
       </div>
 
       {/* 3D Analytics Charts - Premium Section */}
       <div className="space-y-8 pt-2">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg shadow-blue-500/25">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/20">
             <BarChart3 className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -297,7 +297,7 @@ export default function DashboardPage() {
       {/* Recent Activity - Apple Clean Layout */}
       <div className="pt-2">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-gray-700 to-gray-900 shadow-lg shadow-gray-500/25">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/20">
             <Clock className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -331,7 +331,7 @@ export default function DashboardPage() {
                   <Link
                     key={project.id}
                     href={`/projects/${project.id}`}
-                    className="flex items-center justify-between p-3.5 rounded-xl hover:bg-gray-50 transition-all duration-200 border border-gray-100 hover:border-gray-200 hover:shadow-sm"
+                    className="flex items-center justify-between p-3.5 rounded-xl hover:bg-blue-50/50 transition-all duration-200 border border-gray-100 hover:border-blue-200 hover:shadow-sm"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-semibold text-gray-900 truncate tracking-tight">
@@ -360,8 +360,8 @@ export default function DashboardPage() {
                 <h3 className="text-base font-semibold text-gray-900 tracking-tight">
                   Fällige Aufgaben
                 </h3>
-                <div className="p-1.5 rounded-lg bg-orange-100">
-                  <Clock className="h-4 w-4 text-orange-600" />
+                <div className="p-1.5 rounded-lg bg-blue-100">
+                  <Clock className="h-4 w-4 text-blue-600" />
                 </div>
               </div>
               
@@ -369,7 +369,7 @@ export default function DashboardPage() {
                 {stats.dueTasks.slice(0, 5).map((task) => (
                   <div
                     key={task.id}
-                    className="flex items-start justify-between p-3.5 rounded-xl hover:bg-orange-50/50 transition-all duration-200 border border-gray-100 hover:border-orange-200"
+                    className="flex items-start justify-between p-3.5 rounded-xl hover:bg-blue-50/50 transition-all duration-200 border border-gray-100 hover:border-blue-200 hover:shadow-sm"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-semibold text-gray-900 truncate tracking-tight">
@@ -397,13 +397,13 @@ export default function DashboardPage() {
                 <h3 className="text-base font-semibold text-gray-900 tracking-tight">
                   Fällige Aufgaben
                 </h3>
-                <div className="p-1.5 rounded-lg bg-green-100">
-                  <Clock className="h-4 w-4 text-green-600" />
+                <div className="p-1.5 rounded-lg bg-blue-100">
+                  <Clock className="h-4 w-4 text-blue-600" />
                 </div>
               </div>
               <div className="text-center py-12">
-                <div className="p-3 rounded-xl bg-green-100 inline-flex mb-3">
-                  <CheckSquare className="h-8 w-8 text-green-600" />
+                <div className="p-3 rounded-xl bg-blue-100 inline-flex mb-3">
+                  <CheckSquare className="h-8 w-8 text-blue-600" />
                 </div>
                 <p className="text-sm font-medium text-gray-900 mb-1">
                   Alles erledigt!

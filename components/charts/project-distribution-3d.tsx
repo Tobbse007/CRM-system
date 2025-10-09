@@ -168,7 +168,7 @@ export function ProjectDistribution3D({ data, isLoading }: ProjectDistribution3D
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/30">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/20">
                 <FolderKanban className="h-5 w-5 text-white" />
               </div>
               <CardTitle className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">

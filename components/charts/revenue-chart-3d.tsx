@@ -144,7 +144,7 @@ export function RevenueChart3D({ data, isLoading }: RevenueChart3DProps) {
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg shadow-blue-500/30">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/20">
                 <DollarSign className="h-5 w-5 text-white" />
               </div>
               <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">

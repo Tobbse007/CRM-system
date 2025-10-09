@@ -129,9 +129,12 @@ export function TaskCompletion3D({ data, isLoading }: TaskCompletion3DProps) {
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-green-500 to-teal-600 shadow-lg shadow-green-500/30">
+                          {/* Icon */}
+            <div className="relative">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/20">
                 <CheckSquare className="h-5 w-5 text-white" />
               </div>
+            </div>
               <CardTitle className="text-xl font-bold bg-gradient-to-r from-green-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
                 Task Completion Trend
               </CardTitle>
