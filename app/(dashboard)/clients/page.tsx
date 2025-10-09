@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useClients } from '@/hooks/use-clients';
 import { ClientFormDialog } from '@/components/clients/client-form-dialog';
 import { ClientStats } from '@/components/clients/client-stats';
 import { ClientCardGrid } from '@/components/clients/client-card';
+import { ClientTableView } from '@/components/clients/client-table-view';
+import { ViewToggle } from '@/components/clients/view-toggle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -14,8 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Search, Filter } from 'lucide-react';
+import { Plus, Search, Filter, Users } from 'lucide-react';
 import type { Client } from '@/types';
+
+type ViewType = 'grid' | 'table';
 
 export default function ClientsPage() {
   const [search, setSearch] = useState('');
@@ -23,6 +27,21 @@ export default function ClientsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [view, setView] = useState<ViewType>('grid');
+
+  // Load view preference from localStorage
+  useEffect(() => {
+    const savedView = localStorage.getItem('clients-view') as ViewType;
+    if (savedView) {
+      setView(savedView);
+    }
+  }, []);
+
+  // Save view preference to localStorage
+  const handleViewChange = (newView: ViewType) => {
+    setView(newView);
+    localStorage.setItem('clients-view', newView);
+  };
 
   const { data: clients, isLoading, error } = useClients({ search, status: statusFilter });
 
@@ -45,22 +64,29 @@ export default function ClientsPage() {
       {/* Modern Header */}
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
-              Kunden
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Verwalten Sie Ihre Kunden und deren Projekte
-            </p>
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/20">
+              <Users className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+                Kunden
+              </h1>
+              <p className="text-sm text-gray-600 font-medium mt-1">
+                Verwalten Sie Ihre Kunden und deren Projekte
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
+            <ViewToggle view={view} onViewChange={handleViewChange} />
+            
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowFilters(!showFilters)}
               className={`
-                h-9
-                ${activeFiltersCount > 0 ? 'border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100' : ''}
+                h-9 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-colors
+                ${activeFiltersCount > 0 ? 'border-blue-300 bg-blue-50 text-blue-700' : ''}
               `}
             >
               <Filter className="mr-2 h-4 w-4" />
@@ -77,7 +103,7 @@ export default function ClientsPage() {
                 setDialogOpen(true);
               }}
               size="sm"
-              className="h-9"
+              className="h-9 bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-700 hover:to-blue-700"
             >
               <Plus className="mr-2 h-4 w-4" />
               Neuer Kunde
@@ -91,7 +117,7 @@ export default function ClientsPage() {
 
       {/* Filters */}
       {showFilters && (
-        <div className="card-modern p-4">
+        <div className="card-modern p-4 bg-white shadow-sm border-0">
           <div className="flex items-center gap-4">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -124,7 +150,7 @@ export default function ClientsPage() {
                   setSearch('');
                   setStatusFilter('');
                 }}
-                className="h-9"
+                className="h-9 hover:bg-blue-50 hover:text-blue-600"
               >
                 Zurücksetzen
               </Button>
@@ -135,7 +161,7 @@ export default function ClientsPage() {
 
       {/* Client Count */}
       <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-gray-600 font-medium">
           {clients?.length || 0} {clients?.length === 1 ? 'Kunde' : 'Kunden'}
           {activeFiltersCount > 0 && ' (gefiltert)'}
         </div>
@@ -143,20 +169,28 @@ export default function ClientsPage() {
 
       {/* Error State */}
       {error && (
-        <div className="card-modern p-6 text-center">
+        <div className="card-modern p-6 text-center bg-white shadow-sm border-0">
           <p className="text-sm text-red-600">
             Fehler beim Laden der Kunden. Bitte versuchen Sie es erneut.
           </p>
         </div>
       )}
 
-      {/* Client Cards Grid */}
+      {/* Client Views */}
       {!error && (
-        <ClientCardGrid
-          clients={clients || []}
-          isLoading={isLoading}
-          onEdit={handleEdit}
-        />
+        view === 'grid' ? (
+          <ClientCardGrid
+            clients={clients || []}
+            isLoading={isLoading}
+            onEdit={handleEdit}
+          />
+        ) : (
+          <ClientTableView
+            clients={clients || []}
+            isLoading={isLoading}
+            onEdit={handleEdit}
+          />
+        )
       )}
     </div>
   );
