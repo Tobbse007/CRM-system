@@ -125,15 +125,15 @@ export function TaskListView({ tasks, isLoading, onEdit }: TaskListViewProps) {
                     </div>
                   )}
 
-                  {/* Project */}
-                  {task.project && (
+                  {/* Project - Nur zeigen wenn projektId vorhanden */}
+                  {task.projectId && (
                     <Link
-                      href={`/projects/${task.project.id}`}
+                      href={`/projects/${task.projectId}`}
                       className="flex items-center gap-1.5 hover:text-blue-600 transition-colors"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <FolderOpen className="h-3.5 w-3.5 flex-shrink-0" />
-                      <span>{task.project.name}</span>
+                      <span>Projekt</span>
                     </Link>
                   )}
                 </div>

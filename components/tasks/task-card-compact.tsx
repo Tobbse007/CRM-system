@@ -108,14 +108,14 @@ export function TaskCardCompact({ task, onEdit }: TaskCardCompactProps) {
 
         {/* Footer with Project & Edit */}
         <div className="flex items-center justify-between gap-2">
-          {task.project ? (
+          {task.projectId ? (
             <Link
-              href={`/projects/${task.project.id}`}
+              href={`/projects/${task.projectId}`}
               className="flex items-center gap-1.5 text-xs text-gray-600 hover:text-blue-600 transition-colors flex-1 min-w-0"
               onClick={(e) => e.stopPropagation()}
             >
               <FolderOpen className="h-3.5 w-3.5 flex-shrink-0" />
-              <span className="truncate">{task.project.name}</span>
+              <span className="truncate">Projekt</span>
             </Link>
           ) : (
             <span className="text-xs text-gray-400 italic flex-1">Kein Projekt</span>
