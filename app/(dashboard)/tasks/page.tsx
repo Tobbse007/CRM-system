@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useTasks } from '@/hooks/use-tasks';
 import { TaskFormDialog } from '@/components/tasks/task-form-dialog';
 import { TaskStats } from '@/components/tasks/task-stats';
@@ -16,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Search, Filter } from 'lucide-react';
+import { Plus, Search, Filter, X } from 'lucide-react';
 import type { Task } from '@/types';
 
 type TaskViewMode = 'list' | 'kanban';
@@ -36,15 +37,26 @@ const priorityOptions = [
 ];
 
 export default function TasksPage() {
+  const searchParams = useSearchParams();
+  const clientIdFromUrl = searchParams.get('client');
+  
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
+  const [clientFilter, setClientFilter] = useState<string | null>(clientIdFromUrl);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | undefined>();
   const [viewMode, setViewMode] = useState<TaskViewMode>('list');
   const [showFilters, setShowFilters] = useState(false);
 
   const { data: tasks = [], isLoading } = useTasks();
+
+  // Update client filter when URL changes
+  useEffect(() => {
+    if (clientIdFromUrl) {
+      setClientFilter(clientIdFromUrl);
+    }
+  }, [clientIdFromUrl]);
 
   const filteredTasks = tasks.filter((task) => {
     const matchesSearch =
@@ -54,14 +66,18 @@ export default function TasksPage() {
 
     const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
     const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
+    
+    // Filter by client if set
+    const matchesClient = !clientFilter || (task.project?.client?.id === clientFilter);
 
-    return matchesSearch && matchesStatus && matchesPriority;
+    return matchesSearch && matchesStatus && matchesPriority && matchesClient;
   });
 
   const activeFiltersCount = 
     (search ? 1 : 0) + 
     (statusFilter !== 'all' ? 1 : 0) + 
-    (priorityFilter !== 'all' ? 1 : 0);
+    (priorityFilter !== 'all' ? 1 : 0) +
+    (clientFilter ? 1 : 0);
 
   const handleEdit = (task: Task) => {
     setSelectedTask(task);
@@ -82,7 +98,13 @@ export default function TasksPage() {
     setSearch('');
     setStatusFilter('all');
     setPriorityFilter('all');
+    setClientFilter(null);
   };
+  
+  // Get client name for filter badge
+  const clientName = clientFilter && tasks.length > 0 
+    ? tasks.find(t => t.project?.client?.id === clientFilter)?.project?.client?.name 
+    : null;
 
   return (
     <div className="space-y-6">
@@ -126,6 +148,22 @@ export default function TasksPage() {
       </div>
 
       <TaskStats tasks={filteredTasks} isLoading={isLoading} />
+
+      {/* Client Filter Badge */}
+      {clientName && (
+        <div className="flex items-center gap-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-sm font-medium">
+            <span>Gefiltert nach Kunde:</span>
+            <span className="font-semibold">{clientName}</span>
+            <button
+              onClick={() => setClientFilter(null)}
+              className="ml-1 hover:bg-blue-100 rounded p-0.5 transition-colors"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {showFilters && (
         <div className="card-modern p-4">

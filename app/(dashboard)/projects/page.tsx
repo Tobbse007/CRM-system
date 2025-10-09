@@ -23,6 +23,7 @@ import type { ProjectWithClient } from '@/types';
 import { ExportButton, type ExportFormat } from '@/components/reports/export-button';
 import { exportProjectsToPDF } from '@/lib/export-pdf';
 import { exportProjectsToExcel, exportProjectsToCSV } from '@/lib/export-excel';
+import { X } from 'lucide-react';
 
 type ViewMode = 'table' | 'grid';
 
@@ -298,6 +299,27 @@ export default function ProjectsPage() {
         projects={filteredProjects} 
         isLoading={isLoading}
       />
+
+      {/* Client Filter Badge */}
+      {selectedClients.length > 0 && allClients && (
+        <div className="flex items-center gap-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-sm font-medium">
+            <span>Gefiltert nach Kunde:</span>
+            <span className="font-semibold">
+              {allClients.find(c => c.id === selectedClients[0])?.name || 'Unbekannt'}
+            </span>
+            <button
+              onClick={() => {
+                setSelectedClients([]);
+                updateURL();
+              }}
+              className="ml-1 hover:bg-blue-100 rounded p-0.5 transition-colors"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Advanced Filters */}
       {showFilters && (

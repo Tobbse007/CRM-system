@@ -22,6 +22,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useRouter } from 'next/navigation';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface ClientTableViewProps {
   clients: Client[];
@@ -30,6 +32,25 @@ interface ClientTableViewProps {
 }
 
 export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewProps) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  // Mutation für Status-Update
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ clientId, status }: { clientId: string; status: ClientStatus }) => {
+      const response = await fetch(`/api/clients/${clientId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (!response.ok) throw new Error('Failed to update status');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+    },
+  });
+
   const getStatusConfig = (status: ClientStatus) => {
     switch (status) {
       case ClientStatus.ACTIVE:
@@ -125,19 +146,31 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
                       <p className="font-semibold text-gray-900 tracking-tight">
                         {client.name}
                       </p>
-                      {/* Compact Stats Badges */}
+                      {/* Compact Stats Badges - Größer und Klickbar */}
                       <div className="flex items-center gap-1.5 mt-1">
                         {(client as any)._count?.projects > 0 && (
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
-                            <FolderKanban className="h-2.5 w-2.5" />
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/projects?client=${client.id}`);
+                            }}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors cursor-pointer"
+                          >
+                            <FolderKanban className="h-3 w-3" />
                             {(client as any)._count.projects}
-                          </span>
+                          </button>
                         )}
                         {(client as any)._count?.tasks > 0 && (
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-50 text-purple-700 border border-purple-200">
-                            <CheckSquare className="h-2.5 w-2.5" />
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/tasks?client=${client.id}`);
+                            }}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 hover:border-purple-300 transition-colors cursor-pointer"
+                          >
+                            <CheckSquare className="h-3 w-3" />
                             {(client as any)._count.tasks}
-                          </span>
+                          </button>
                         )}
                       </div>
                     </div>
@@ -203,14 +236,52 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
                 </TableCell>
 
                 {/* Status */}
-                <TableCell>
-                  <Badge
-                    variant="outline"
-                    className={`${statusConfig.color} border font-medium`}
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dotColor} mr-1.5`}></span>
-                    {statusConfig.label}
-                  </Badge>
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md">
+                        <Badge
+                          variant="outline"
+                          className={`${statusConfig.color} border font-medium cursor-pointer hover:opacity-80 transition-opacity`}
+                        >
+                          <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dotColor} mr-1.5`}></span>
+                          {statusConfig.label}
+                        </Badge>
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-40">
+                      <DropdownMenuItem 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.ACTIVE });
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></span>
+                        Aktiv
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.LEAD });
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></span>
+                        Lead
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.INACTIVE });
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-gray-500 mr-2"></span>
+                        Inaktiv
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
 
                 {/* Aktionen */}
