@@ -154,19 +154,40 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div>
-          <div className="h-9 w-48 skeleton rounded mb-2" />
-          <div className="h-5 w-96 skeleton rounded" />
+      <div className="space-y-8 fade-in">
+        {/* Header Skeleton */}
+        <div className="space-y-2">
+          <div className="h-9 w-56 bg-gray-200 rounded-lg animate-pulse" />
+          <div className="h-4 w-96 bg-gray-100 rounded animate-pulse" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        {/* Stats Grid Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="stat-card">
-              <div className="h-4 w-24 skeleton rounded mb-3" />
-              <div className="h-10 w-32 skeleton rounded mb-2" />
-              <div className="h-4 w-20 skeleton rounded" />
+            <div key={i} className="card-modern p-6">
+              <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-4" />
+              <div className="h-10 w-32 bg-gray-300 rounded-lg animate-pulse mb-3" />
+              <div className="h-3 w-20 bg-gray-100 rounded animate-pulse" />
             </div>
           ))}
+        </div>
+
+        {/* Charts Skeleton */}
+        <div className="space-y-8 pt-2">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 bg-gradient-to-br from-blue-200 to-purple-200 rounded-xl animate-pulse" />
+            <div className="space-y-2">
+              <div className="h-6 w-48 bg-gray-200 rounded animate-pulse" />
+              <div className="h-3 w-64 bg-gray-100 rounded animate-pulse" />
+            </div>
+          </div>
+          
+          <div className="h-[520px] card-modern animate-pulse" />
+          
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <div className="h-[550px] card-modern animate-pulse" />
+            <div className="h-[550px] card-modern animate-pulse" />
+          </div>
         </div>
       </div>
     );
@@ -185,19 +206,19 @@ export default function DashboardPage() {
     : '0';
 
   return (
-    <div className="space-y-6 fade-in">
-      {/* Header - Minimal & Clean */}
-      <div>
+    <div className="space-y-8 fade-in">
+      {/* Header - Apple Minimal */}
+      <div className="space-y-1">
         <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
           Dashboard
         </h1>
-        <p className="text-gray-500 mt-1 text-sm">
+        <p className="text-sm text-gray-500">
           Willkommen zurück! Hier ist eine Übersicht Ihrer Projekte.
         </p>
       </div>
 
-      {/* Stats Grid - Like Nexus Dashboard */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Stats Grid - Apple Style */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard
           title="Page Views"
           value="12,450"
@@ -231,30 +252,30 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* 3D Analytics Charts - Premium Design */}
-      <div className="space-y-6">
+      {/* 3D Analytics Charts - Premium Section */}
+      <div className="space-y-8 pt-2">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg shadow-blue-500/25">
             <BarChart3 className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+            <h2 className="text-xl font-semibold text-gray-900 tracking-tight">
               Advanced Analytics
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 mt-0.5">
               Detaillierte Einblicke in Performance und Trends
             </p>
           </div>
         </div>
 
         {/* Revenue Chart - Full Width */}
-        <Suspense fallback={<div className="h-[500px] skeleton rounded-2xl" />}>
+        <Suspense fallback={<div className="h-[520px] card-modern animate-pulse" />}>
           <RevenueChart3D data={revenueData} isLoading={isLoading} />
         </Suspense>
 
         {/* Distribution & Completion - Side by Side */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <Suspense fallback={<div className="h-[550px] skeleton rounded-2xl" />}>
+          <Suspense fallback={<div className="h-[550px] card-modern animate-pulse" />}>
             <ProjectDistribution3D 
               data={{
                 planning: stats.projects.planning,
@@ -267,169 +288,133 @@ export default function DashboardPage() {
             />
           </Suspense>
 
-          <Suspense fallback={<div className="h-[550px] skeleton rounded-2xl" />}>
+          <Suspense fallback={<div className="h-[550px] card-modern animate-pulse" />}>
             <TaskCompletion3D data={taskCompletionData} isLoading={isLoading} />
           </Suspense>
         </div>
       </div>
 
-      {/* Analytics Section */}
-      {!analyticsLoading && analytics && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="h-5 w-5 text-blue-500" />
-            <h2 className="text-lg font-semibold text-gray-900">
-              Sales Overview
+      {/* Recent Activity - Apple Clean Layout */}
+      <div className="pt-2">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-gray-700 to-gray-900 shadow-lg shadow-gray-500/25">
+            <Clock className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 tracking-tight">
+              Recent Activity
             </h2>
-            <div className="flex-1" />
-            <div className="flex items-center gap-2 text-sm">
-              <Button variant="ghost" size="sm" className="h-8 text-xs">
-                <span className="inline-flex items-center gap-1">
-                  📊 Filter
-                </span>
-              </Button>
-              <Button variant="ghost" size="sm" className="h-8 text-xs">
-                <span className="inline-flex items-center gap-1">
-                  ↕️ Sort
-                </span>
-              </Button>
-            </div>
+            <p className="text-sm text-gray-500 mt-0.5">
+              Ihre neuesten Projekte und fälligen Aufgaben
+            </p>
           </div>
+        </div>
 
-          {/* Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="card-modern p-5">
-              <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">
-                Projekt Status
-              </h3>
-              <Suspense fallback={<div className="h-64 skeleton rounded" />}>
-                <ProjectStatusChart
-                  planning={stats.projects.planning}
-                  inProgress={stats.projects.inProgress}
-                  review={stats.projects.review}
-                  completed={stats.projects.completed}
-                  onHold={stats.projects.onHold}
-                />
-              </Suspense>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Recent Projects */}
+          {stats.recentProjects && stats.recentProjects.length > 0 && (
+            <div className="card-modern p-6">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-base font-semibold text-gray-900 tracking-tight">
+                  Letzte Projekte
+                </h3>
+                <Button variant="ghost" size="sm" asChild className="h-8 text-xs font-medium hover-lift">
+                  <Link href="/projects" className="flex items-center gap-1.5">
+                    Alle anzeigen
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </Link>
+                </Button>
+              </div>
+              
+              <div className="space-y-3">
+                {stats.recentProjects.slice(0, 5).map((project) => (
+                  <Link
+                    key={project.id}
+                    href={`/projects/${project.id}`}
+                    className="flex items-center justify-between p-3.5 rounded-xl hover:bg-gray-50 transition-all duration-200 border border-gray-100 hover:border-gray-200 hover:shadow-sm"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-gray-900 truncate tracking-tight">
+                        {project.name}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1 truncate">
+                        {project.client.name}
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="text-xs ml-3 flex-shrink-0 font-medium">
+                      {project.status === 'IN_PROGRESS' ? 'In Arbeit' : 
+                       project.status === 'PLANNING' ? 'Planung' :
+                       project.status === 'REVIEW' ? 'Review' :
+                       project.status === 'COMPLETED' ? 'Fertig' : 'Pausiert'}
+                    </Badge>
+                  </Link>
+                ))}
+              </div>
             </div>
-            
-            <div className="card-modern p-5">
-              <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">
-                Aufgaben Fortschritt
-              </h3>
-              <Suspense fallback={<div className="h-64 skeleton rounded" />}>
-                <TaskProgressChart
-                  todo={stats.tasks.todo}
-                  inProgress={stats.tasks.inProgress}
-                  done={stats.tasks.done}
-                />
-              </Suspense>
-            </div>
-          </div>
+          )}
 
-          {/* Team Performance */}
-          {analytics.teamStats && analytics.teamStats.length > 0 && (
-            <div className="card-modern p-5">
-              <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">
-                Team Performance
-              </h3>
-              <Suspense fallback={<div className="h-48 skeleton rounded" />}>
-                <TeamPerformanceTable team={analytics.teamStats} />
-              </Suspense>
+          {/* Due Tasks */}
+          {stats.dueTasks && stats.dueTasks.length > 0 ? (
+            <div className="card-modern p-6">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-base font-semibold text-gray-900 tracking-tight">
+                  Fällige Aufgaben
+                </h3>
+                <div className="p-1.5 rounded-lg bg-orange-100">
+                  <Clock className="h-4 w-4 text-orange-600" />
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                {stats.dueTasks.slice(0, 5).map((task) => (
+                  <div
+                    key={task.id}
+                    className="flex items-start justify-between p-3.5 rounded-xl hover:bg-orange-50/50 transition-all duration-200 border border-gray-100 hover:border-orange-200"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-gray-900 truncate tracking-tight">
+                        {task.title}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1 truncate">
+                        {task.project.name}
+                      </div>
+                    </div>
+                    {task.dueDate && (
+                      <Badge 
+                        variant={isDueSoon(task.dueDate) ? "destructive" : "outline"}
+                        className="text-xs ml-3 flex-shrink-0 font-medium"
+                      >
+                        {formatDate(task.dueDate)}
+                      </Badge>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="card-modern p-6">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-base font-semibold text-gray-900 tracking-tight">
+                  Fällige Aufgaben
+                </h3>
+                <div className="p-1.5 rounded-lg bg-green-100">
+                  <Clock className="h-4 w-4 text-green-600" />
+                </div>
+              </div>
+              <div className="text-center py-12">
+                <div className="p-3 rounded-xl bg-green-100 inline-flex mb-3">
+                  <CheckSquare className="h-8 w-8 text-green-600" />
+                </div>
+                <p className="text-sm font-medium text-gray-900 mb-1">
+                  Alles erledigt!
+                </p>
+                <p className="text-xs text-gray-500">
+                  Keine fälligen Aufgaben vorhanden
+                </p>
+              </div>
             </div>
           )}
         </div>
-      )}
-
-      {/* Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Recent Projects */}
-        {stats.recentProjects && stats.recentProjects.length > 0 && (
-          <div className="card-modern p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-gray-900">Letzte Projekte</h3>
-              <Button variant="ghost" size="sm" asChild className="h-7 text-xs hover-lift">
-                <Link href="/projects" className="flex items-center gap-1">
-                  Alle <ExternalLink className="h-3 w-3" />
-                </Link>
-              </Button>
-            </div>
-            
-            <div className="space-y-2">
-              {stats.recentProjects.slice(0, 5).map((project) => (
-                <Link
-                  key={project.id}
-                  href={`/projects/${project.id}`}
-                  className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-fast border border-gray-100"
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-gray-900 truncate">
-                      {project.name}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-0.5 truncate">
-                      {project.client.name}
-                    </div>
-                  </div>
-                  <Badge variant="outline" className="text-xs ml-2 flex-shrink-0">
-                    {project.status === 'IN_PROGRESS' ? 'In Arbeit' : 
-                     project.status === 'PLANNING' ? 'Planung' :
-                     project.status === 'REVIEW' ? 'Review' :
-                     project.status === 'COMPLETED' ? 'Fertig' : 'Pausiert'}
-                  </Badge>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Due Tasks */}
-        {stats.dueTasks && stats.dueTasks.length > 0 ? (
-          <div className="card-modern p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-gray-900">Fällige Aufgaben</h3>
-              <Clock className="h-4 w-4 text-orange-500" />
-            </div>
-            
-            <div className="space-y-2">
-              {stats.dueTasks.slice(0, 5).map((task) => (
-                <div
-                  key={task.id}
-                  className="flex items-start justify-between p-3 rounded-lg hover:bg-orange-50/50 transition-fast border border-gray-100"
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-gray-900 truncate">
-                      {task.title}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-0.5 truncate">
-                      {task.project.name}
-                    </div>
-                  </div>
-                  {task.dueDate && (
-                    <Badge 
-                      variant={isDueSoon(task.dueDate) ? "destructive" : "outline"}
-                      className="text-xs ml-2 flex-shrink-0"
-                    >
-                      {formatDate(task.dueDate)}
-                    </Badge>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="card-modern p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-gray-900">Fällige Aufgaben</h3>
-              <Clock className="h-4 w-4 text-green-500" />
-            </div>
-            <div className="text-center py-8">
-              <CheckSquare className="h-10 w-10 text-green-500 mx-auto mb-2" />
-              <p className="text-sm text-gray-500">
-                Keine fälligen Aufgaben
-              </p>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
