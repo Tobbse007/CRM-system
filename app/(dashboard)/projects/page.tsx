@@ -18,7 +18,7 @@ import {
   SavedFilters,
 } from '@/components/filters';
 import type { FilterConfig } from '@/components/filters';
-import { Plus, Filter } from 'lucide-react';
+import { Plus, Filter, FolderKanban, ChevronDown, ChevronUp } from 'lucide-react';
 import type { ProjectWithClient } from '@/types';
 import { ExportButton, type ExportFormat } from '@/components/reports/export-button';
 import { exportProjectsToPDF } from '@/lib/export-pdf';
@@ -231,130 +231,133 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 w-full">
       <ProjectFormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         project={selectedProject}
       />
 
-      {/* Modern Header */}
-      <div className="space-y-4">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
-              Projekte
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Verwalten Sie Ihre Projekte und deren Fortschritt
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-              className={`
-                h-9
-                ${activeFiltersCount > 0 ? 'border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100' : ''}
-              `}
-            >
-              <Filter className="mr-2 h-4 w-4" />
-              Filter
-              {activeFiltersCount > 0 && (
-                <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-blue-600 text-white rounded-full">
-                  {activeFiltersCount}
-                </span>
-              )}
-            </Button>
-            <ExportButton
-              onExport={handleExport}
-              variant="outline"
-              size="sm"
-              disabled={!filteredProjects || filteredProjects.length === 0}
-              className="h-9"
-            />
-            <SavedFilters
-              currentConfig={currentFilterConfig}
-              onLoad={handleLoadFilter}
-              storageKey="crm-project-filters"
-            />
-            <Button 
-              onClick={() => {
-                setSelectedProject(null);
-                setDialogOpen(true);
-              }}
-              size="sm"
-              className="h-9"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Neues Projekt
-            </Button>
-          </div>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2 min-h-[72px] w-full">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-3">
+            <FolderKanban className="h-8 w-8" />
+            Projekte
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Verwalten Sie Ihre Projekte und deren Fortschritt
+          </p>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <ProjectViewToggle view={viewMode} onViewChange={setViewMode} />
+          <Button
+            onClick={() => {
+              setSelectedProject(null);
+              setDialogOpen(true);
+            }}
+            variant="ghost"
+            size="sm"
+            className="h-9 text-gray-900 hover:text-blue-600 hover:bg-blue-50 transition-colors font-semibold"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Neues Projekt
+          </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <ProjectStats 
-        projects={filteredProjects} 
-        isLoading={isLoading}
-      />
+      <div className="w-full">
+        <ProjectStats 
+          projects={filteredProjects} 
+          isLoading={isLoading}
+        />
+      </div>
 
-      {/* Client Filter Badge */}
-      {selectedClients.length > 0 && allClients && (
-        <div className="flex items-center gap-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-sm font-medium">
-            <span>Gefiltert nach Kunde:</span>
-            <span className="font-semibold">
-              {allClients.find(c => c.id === selectedClients[0])?.name || 'Unbekannt'}
-            </span>
-            <button
-              onClick={() => {
-                setSelectedClients([]);
-                updateURL();
-              }}
-              className="ml-1 hover:bg-blue-100 rounded p-0.5 transition-colors"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
+      {/* Project Count & Filter Toggle */}
+      <div className="flex items-center justify-between pl-2 my-2.5">
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-gray-600 font-medium">
+            {filteredProjects.length} {filteredProjects.length === 1 ? 'Projekt' : 'Projekte'}
+            {activeFiltersCount > 0 && ' (gefiltert)'}
           </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="text-sm text-gray-600 font-medium hover:text-blue-600 transition-colors flex items-center gap-1.5"
+          >
+            {showFilters ? (
+              <>
+                <ChevronUp className="h-4 w-4" />
+                Filter ausblenden
+              </>
+            ) : (
+              <>
+                <ChevronDown className="h-4 w-4" />
+                Filter einblenden
+              </>
+            )}
+            {activeFiltersCount > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 text-xs bg-blue-600 text-white rounded-full">
+                {activeFiltersCount}
+              </span>
+            )}
+          </button>
+          {/* Zurücksetzen Button */}
+          {activeFiltersCount > 0 && (
+            <button
+              onClick={handleResetFilters}
+              className="text-sm text-gray-600 font-medium hover:text-blue-600 transition-colors"
+            >
+              Zurücksetzen
+            </button>
+          )}
         </div>
-      )}
+        <div className="flex items-center gap-2">
+          <ExportButton
+            onExport={handleExport}
+            variant="outline"
+            size="sm"
+            disabled={!filteredProjects || filteredProjects.length === 0}
+            className="h-8"
+          />
+          <SavedFilters
+            currentConfig={currentFilterConfig}
+            onLoad={handleLoadFilter}
+            storageKey="crm-project-filters"
+          />
+        </div>
+      </div>
 
-      {/* Advanced Filters */}
-      {showFilters && (
+      {/* Filters */}
+      <div 
+        className={`
+          overflow-hidden transition-all duration-300 ease-in-out
+          ${showFilters ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'}
+        `}
+      >
         <FilterPanel
           filters={filterConfigs}
           activeFiltersCount={activeFiltersCount}
           onReset={handleResetFilters}
           onApply={updateURL}
         />
-      )}
-
-      {/* View Controls */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="text-sm text-gray-600">
-          {filteredProjects.length} {filteredProjects.length === 1 ? 'Projekt' : 'Projekte'}
-          {activeFiltersCount > 0 && ' (gefiltert)'}
-        </div>
-        <ProjectViewToggle 
-          view={viewMode} 
-          onViewChange={setViewMode}
-        />
       </div>
 
       {/* Error State */}
       {error && (
-        <div className="card-modern p-6 text-center">
+        <div className="card-modern p-6 text-center bg-white shadow-sm border-0">
           <p className="text-sm text-red-600">
             Fehler beim Laden der Projekte. Bitte versuchen Sie es erneut.
           </p>
         </div>
       )}
 
-      {/* Content - Table or Grid View */}
+      {/* Content with transition */}
       {!error && (
-        <>
+        <div 
+          key={viewMode} 
+          className="animate-view-transition w-full"
+        >
           {viewMode === 'table' ? (
             <ProjectTableModern
               projects={filteredProjects}
@@ -368,7 +371,7 @@ export default function ProjectsPage() {
               onEdit={handleEdit}
             />
           )}
-        </>
+        </div>
       )}
     </div>
   );

@@ -71,20 +71,30 @@ export default function TeamPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 w-full">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-2 min-h-[72px] w-full">
         <div>
-          <h1 className="text-3xl font-bold">Team-Mitglieder</h1>
-          <p className="text-muted-foreground">Verwalten Sie Ihr Team und deren Berechtigungen</p>
+          <h1 className="text-3xl font-bold flex items-center gap-3">
+            <Users className="h-8 w-8" />
+            Team-Mitglieder
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Verwalten Sie Ihr Team und deren Berechtigungen
+          </p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Benutzer hinzufügen
-            </Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-9 text-gray-900 hover:text-blue-600 hover:bg-blue-50 transition-colors font-semibold"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Benutzer hinzufügen
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Neuen Benutzer erstellen</DialogTitle>
@@ -147,10 +157,18 @@ export default function TeamPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
+      </div>
+
+      {/* Team Member Count */}
+      <div className="flex items-center justify-between pl-2 my-2.5">
+        <div className="text-sm text-gray-600 font-medium">
+          {users.length} {users.length === 1 ? 'Mitglied' : 'Mitglieder'}
+        </div>
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3 w-full">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Gesamt</CardTitle>

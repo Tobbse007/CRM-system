@@ -154,26 +154,39 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-8 fade-in">
+      <div className="space-y-3 w-full">
         {/* Header Skeleton */}
-        <div className="space-y-2">
-          <div className="h-9 w-56 bg-gray-200 rounded-lg animate-pulse" />
-          <div className="h-4 w-96 bg-gray-100 rounded animate-pulse" />
+        <div className="mb-2 min-h-[72px] flex items-center">
+          <div className="space-y-2">
+            <div className="h-9 w-56 bg-gray-200 rounded-lg animate-pulse" />
+            <div className="h-4 w-96 bg-gray-100 rounded animate-pulse" />
+          </div>
         </div>
 
         {/* Stats Grid Skeleton */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 w-full">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="card-modern p-6">
-              <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-4" />
-              <div className="h-10 w-32 bg-gray-300 rounded-lg animate-pulse mb-3" />
-              <div className="h-3 w-20 bg-gray-100 rounded animate-pulse" />
+            <div 
+              key={i} 
+              className="stat-card animate-pulse min-w-0 opacity-0 animate-fade-in-up"
+              style={{ 
+                animationDelay: `${i * 100}ms`,
+                animationFillMode: 'forwards'
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <div className="space-y-2 flex-1">
+                  <div className="h-3 bg-gray-200 rounded w-24"></div>
+                  <div className="h-8 bg-gray-200 rounded w-16"></div>
+                </div>
+                <div className="w-12 h-12 bg-gray-200 rounded-xl"></div>
+              </div>
             </div>
           ))}
         </div>
 
         {/* Charts Skeleton */}
-        <div className="space-y-8 pt-2">
+        <div className="space-y-6 pt-2">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 bg-gradient-to-br from-blue-200 to-purple-200 rounded-xl animate-pulse" />
             <div className="space-y-2">
@@ -206,25 +219,29 @@ export default function DashboardPage() {
     : '0';
 
   return (
-    <div className="space-y-8 fade-in">
-      {/* Header - Apple Minimal */}
-      <div className="space-y-1">
-        <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
-          Dashboard
-        </h1>
-        <p className="text-sm text-gray-500">
-          Willkommen zurück! Hier ist eine Übersicht Ihrer Projekte.
-        </p>
+    <div className="space-y-3 w-full">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2 min-h-[72px] w-full">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-3">
+            <BarChart3 className="h-8 w-8" />
+            Dashboard
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Willkommen zurück! Hier ist eine Übersicht Ihrer Projekte
+          </p>
+        </div>
       </div>
 
-      {/* Stats Grid - Apple Style */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* Stats Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 w-full">
         <StatCard
           title="Page Views"
           value="12,450"
           trend={{ value: "18.8%", isPositive: true }}
           icon={Eye}
           iconColor="text-blue-600"
+          index={0}
         />
         
         <StatCard
@@ -233,6 +250,7 @@ export default function DashboardPage() {
           trend={{ value: "34.0%", isPositive: false }}
           icon={DollarSign}
           iconColor="text-blue-600"
+          index={1}
         />
         
         <StatCard
@@ -241,6 +259,7 @@ export default function DashboardPage() {
           trend={{ value: `${stats.clients.active} aktiv`, isPositive: true }}
           icon={Users}
           iconColor="text-blue-600"
+          index={2}
         />
         
         <StatCard
@@ -249,11 +268,12 @@ export default function DashboardPage() {
           trend={{ value: `${completionRate}% fertig`, isPositive: true }}
           icon={FolderKanban}
           iconColor="text-blue-600"
+          index={3}
         />
       </div>
 
       {/* 3D Analytics Charts - Premium Section */}
-      <div className="space-y-8 pt-2">
+      <div className="space-y-6 pt-2">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/20">
             <BarChart3 className="h-5 w-5 text-white" />

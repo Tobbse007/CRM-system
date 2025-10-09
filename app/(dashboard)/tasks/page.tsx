@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Search, Filter, X } from 'lucide-react';
+import { Plus, Search, Filter, X, CheckSquare, ChevronDown, ChevronUp } from 'lucide-react';
 import type { Task } from '@/types';
 
 type TaskViewMode = 'list' | 'kanban';
@@ -107,51 +107,86 @@ export default function TasksPage() {
     : null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 w-full">
       <TaskFormDialog
         open={dialogOpen}
         onOpenChange={handleDialogClose}
         task={selectedTask}
       />
 
-      <div className="space-y-4">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
-              Aufgaben
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Verwalten Sie alle Aufgaben über Projekte hinweg
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-              className={activeFiltersCount > 0 ? 'border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100' : ''}
-            >
-              <Filter className="mr-2 h-4 w-4" />
-              Filter
-              {activeFiltersCount > 0 && (
-                <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-blue-600 text-white rounded-full">
-                  {activeFiltersCount}
-                </span>
-              )}
-            </Button>
-            <Button onClick={handleAddNew} size="sm" className="h-9">
-              <Plus className="mr-2 h-4 w-4" />
-              Aufgabe hinzufügen
-            </Button>
-          </div>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2 min-h-[72px] w-full">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-3">
+            <CheckSquare className="h-8 w-8" />
+            Aufgaben
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Verwalten Sie alle Aufgaben über Projekte hinweg
+          </p>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <TaskViewToggle view={viewMode} onViewChange={setViewMode} />
+          <Button
+            onClick={handleAddNew}
+            variant="ghost"
+            size="sm"
+            className="h-9 text-gray-900 hover:text-blue-600 hover:bg-blue-50 transition-colors font-semibold"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Neue Aufgabe
+          </Button>
         </div>
       </div>
 
-      <TaskStats tasks={filteredTasks} isLoading={isLoading} />
+      {/* Stats Cards */}
+      <div className="w-full">
+        <TaskStats tasks={filteredTasks} isLoading={isLoading} />
+      </div>
+
+      {/* Task Count & Filter Toggle */}
+      <div className="flex items-center justify-between pl-2 my-2.5">
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-gray-600 font-medium">
+            {filteredTasks.length} {filteredTasks.length === 1 ? 'Aufgabe' : 'Aufgaben'}
+            {activeFiltersCount > 0 && ' (gefiltert)'}
+          </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="text-sm text-gray-600 font-medium hover:text-blue-600 transition-colors flex items-center gap-1.5"
+          >
+            {showFilters ? (
+              <>
+                <ChevronUp className="h-4 w-4" />
+                Filter ausblenden
+              </>
+            ) : (
+              <>
+                <ChevronDown className="h-4 w-4" />
+                Filter einblenden
+              </>
+            )}
+            {activeFiltersCount > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 text-xs bg-blue-600 text-white rounded-full">
+                {activeFiltersCount}
+              </span>
+            )}
+          </button>
+          {/* Zurücksetzen Button */}
+          {activeFiltersCount > 0 && (
+            <button
+              onClick={handleResetFilters}
+              className="text-sm text-gray-600 font-medium hover:text-blue-600 transition-colors"
+            >
+              Zurücksetzen
+            </button>
+          )}
+        </div>
+      </div>
 
       {/* Client Filter Badge */}
       {clientName && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 pl-2">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-sm font-medium">
             <span>Gefiltert nach Kunde:</span>
             <span className="font-semibold">{clientName}</span>
@@ -165,26 +200,36 @@ export default function TasksPage() {
         </div>
       )}
 
-      {showFilters && (
-        <div className="card-modern p-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Filters */}
+      <div 
+        className={`
+          overflow-hidden transition-all duration-300 ease-in-out
+          ${showFilters ? 'max-h-[200px] opacity-100' : 'max-h-0 opacity-0'}
+        `}
+      >
+        <div className="shadow-[0_2px_12px_rgb(0,0,0,0.04)] border border-gray-200 bg-white overflow-hidden rounded-2xl p-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Aufgaben durchsuchen..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 h-9"
+                className="pl-9 h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="h-9">
+              <SelectTrigger className="h-10 border-gray-200">
                 <SelectValue placeholder="Status filtern" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 {statusOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
+                  <SelectItem 
+                    key={option.value} 
+                    value={option.value}
+                    className="cursor-pointer hover:bg-blue-50 focus:bg-blue-50"
+                  >
                     {option.label}
                   </SelectItem>
                 ))}
@@ -192,58 +237,44 @@ export default function TasksPage() {
             </Select>
 
             <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-              <SelectTrigger className="h-9">
+              <SelectTrigger className="h-10 border-gray-200">
                 <SelectValue placeholder="Priorität filtern" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 {priorityOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
+                  <SelectItem 
+                    key={option.value} 
+                    value={option.value}
+                    className="cursor-pointer hover:bg-blue-50 focus:bg-blue-50"
+                  >
                     {option.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-
-          {activeFiltersCount > 0 && (
-            <div className="mt-3 flex items-center justify-between">
-              <p className="text-sm text-gray-600">
-                {filteredTasks.length} von {tasks.length} Aufgaben werden angezeigt
-              </p>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleResetFilters}
-                className="h-8"
-              >
-                Zurücksetzen
-              </Button>
-            </div>
-          )}
         </div>
-      )}
-
-      <div className="flex items-center justify-between gap-4">
-        <div className="text-sm text-gray-600">
-          {filteredTasks.length} {filteredTasks.length === 1 ? 'Aufgabe' : 'Aufgaben'}
-          {activeFiltersCount > 0 && ' (gefiltert)'}
-        </div>
-        <TaskViewToggle view={viewMode} onViewChange={setViewMode} />
       </div>
 
-      {viewMode === 'list' ? (
-        <TaskListView
-          tasks={filteredTasks}
-          isLoading={isLoading}
-          onEdit={handleEdit}
-        />
-      ) : (
-        <TaskKanbanView
-          tasks={filteredTasks}
-          isLoading={isLoading}
-          onEdit={handleEdit}
-        />
-      )}
+      {/* Content with transition */}
+      <div 
+        key={viewMode} 
+        className="animate-view-transition w-full"
+      >
+        {viewMode === 'list' ? (
+          <TaskListView
+            tasks={filteredTasks}
+            isLoading={isLoading}
+            onEdit={handleEdit}
+          />
+        ) : (
+          <TaskKanbanView
+            tasks={filteredTasks}
+            isLoading={isLoading}
+            onEdit={handleEdit}
+          />
+        )}
+      </div>
     </div>
   );
 }

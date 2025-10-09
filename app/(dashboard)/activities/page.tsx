@@ -18,15 +18,15 @@ export default function ActivitiesPage() {
   const [activityTypeFilter, setActivityTypeFilter] = useState<string>('');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 w-full">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-2 min-h-[72px] w-full">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-3">
             <Activity className="h-8 w-8" />
             Aktivitäts-Log
           </h1>
-          <p className="text-muted-foreground mt-2">
+          <p className="text-gray-600 mt-1">
             Alle Änderungen und Aktivitäten im System
           </p>
         </div>
