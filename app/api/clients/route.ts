@@ -22,10 +22,36 @@ export async function GET(request: NextRequest) {
         }),
         ...(status && { status: status as any }),
       },
+      include: {
+        _count: {
+          select: {
+            projects: true,
+          },
+        },
+        projects: {
+          select: {
+            _count: {
+              select: {
+                tasks: true,
+              },
+            },
+          },
+        },
+      },
       orderBy: { createdAt: 'desc' },
     });
 
-    return NextResponse.json({ success: true, data: clients });
+    // Berechne die Gesamtanzahl der Tasks für jeden Client
+    const clientsWithTaskCount = clients.map((client) => ({
+      ...client,
+      _count: {
+        ...client._count,
+        tasks: client.projects.reduce((sum, project) => sum + project._count.tasks, 0),
+      },
+      projects: undefined, // Entferne projects aus der Response
+    }));
+
+    return NextResponse.json({ success: true, data: clientsWithTaskCount });
   } catch (error) {
     console.error('GET /api/clients error:', error);
     return NextResponse.json(
@@ -73,7 +99,7 @@ export async function POST(request: NextRequest) {
         { 
           success: false, 
           error: 'Validierungsfehler', 
-          errors: error.errors 
+          details: error.issues 
         },
         { status: 400 }
       );

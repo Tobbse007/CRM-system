@@ -229,7 +229,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: ClientFormDialo
               <Button 
                 type="submit" 
                 disabled={createClient.isPending || updateClient.isPending}
-                className="bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-700 hover:to-blue-700"
+                className="bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-700 hover:to-blue-700 text-white"
               >
                 {createClient.isPending || updateClient.isPending
                   ? 'Speichern...'

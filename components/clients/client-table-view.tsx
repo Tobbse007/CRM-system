@@ -11,7 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Card } from '@/components/ui/card';
-import { Mail, Phone, Globe, Building2, Edit, MoreVertical } from 'lucide-react';
+import { Mail, Phone, Globe, Building2, Edit, MoreVertical, FolderKanban, CheckSquare } from 'lucide-react';
 import { ClientStatus } from '@prisma/client';
 import type { Client } from '@/types';
 import { ClientAvatar } from './client-avatar';
@@ -98,13 +98,13 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50/80 hover:bg-gray-50/80 border-b border-gray-200">
-              <TableHead className="font-bold text-gray-900 text-sm w-[200px] h-11 py-3">Kunde</TableHead>
+              <TableHead className="font-bold text-gray-900 text-sm w-[200px] h-11 py-3 pl-6">Kunde</TableHead>
               <TableHead className="font-bold text-gray-900 text-sm w-[180px] h-11 py-3">Firma</TableHead>
               <TableHead className="font-bold text-gray-900 text-sm w-[220px] h-11 py-3">E-Mail</TableHead>
               <TableHead className="font-bold text-gray-900 text-sm w-[160px] h-11 py-3">Telefon</TableHead>
               <TableHead className="font-bold text-gray-900 text-sm w-[200px] h-11 py-3">Website</TableHead>
               <TableHead className="font-bold text-gray-900 text-sm w-[120px] h-11 py-3">Status</TableHead>
-              <TableHead className="font-bold text-gray-900 text-sm text-right w-[140px] h-11 py-3">Aktionen</TableHead>
+              <TableHead className="font-bold text-gray-900 text-sm w-[140px] h-11 py-3 pr-6 text-right">Aktionen</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -118,13 +118,28 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
                 onClick={() => onEdit(client)}
               >
                 {/* Kunde (Avatar + Name) */}
-                <TableCell>
+                <TableCell className="pl-6">
                   <div className="flex items-center gap-3">
                     <ClientAvatar name={client.name} size="sm" />
                     <div>
                       <p className="font-semibold text-gray-900 tracking-tight">
                         {client.name}
                       </p>
+                      {/* Compact Stats Badges */}
+                      <div className="flex items-center gap-1.5 mt-1">
+                        {(client as any)._count?.projects > 0 && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                            <FolderKanban className="h-2.5 w-2.5" />
+                            {(client as any)._count.projects}
+                          </span>
+                        )}
+                        {(client as any)._count?.tasks > 0 && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-50 text-purple-700 border border-purple-200">
+                            <CheckSquare className="h-2.5 w-2.5" />
+                            {(client as any)._count.tasks}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </TableCell>
@@ -199,7 +214,7 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
                 </TableCell>
 
                 {/* Aktionen */}
-                <TableCell className="text-right">
+                <TableCell className="text-right pr-6">
                   <div className="flex items-center justify-end gap-2">
                     <Button
                       variant="ghost"
