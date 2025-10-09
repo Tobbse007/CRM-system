@@ -78,7 +78,7 @@ export function ClientFormDialog({ open, onOpenChange, client }: ClientFormDialo
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-white border-0 shadow-[0_20px_60px_rgb(0,0,0,0.20)]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-white border-0 shadow-[0_20px_60px_rgb(0,0,0,0.20)]">
         <DialogHeader className="space-y-3">
           <DialogTitle className="text-2xl font-bold tracking-tight text-gray-900">
             {isEdit ? 'Kunde bearbeiten' : 'Neuer Kunde'}
@@ -91,124 +91,130 @@ export function ClientFormDialog({ open, onOpenChange, client }: ClientFormDialo
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-semibold text-gray-900">Name *</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Max Mustermann" 
-                      {...field} 
-                      className="bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-semibold text-gray-900">E-Mail *</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="email" 
-                      placeholder="max@beispiel.de" 
-                      {...field} 
-                      className="bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-semibold text-gray-900">Telefon</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="+49 123 456789" 
-                      {...field} 
-                      value={field.value || ''} 
-                      className="bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="company"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-semibold text-gray-900">Firma</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Beispiel GmbH" 
-                      {...field} 
-                      value={field.value || ''} 
-                      className="bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="website"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-semibold text-gray-900">Website</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="url"
-                      placeholder="https://beispiel.de"
-                      {...field}
-                      value={field.value || ''}
-                      className="bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-semibold text-gray-900">Status *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-2">
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold text-gray-900">Name *</FormLabel>
                     <FormControl>
-                      <SelectTrigger className="bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                        <SelectValue placeholder="Status auswählen" />
-                      </SelectTrigger>
+                      <Input 
+                        placeholder="Max Mustermann" 
+                        {...field} 
+                        className="bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                      />
                     </FormControl>
-                    <SelectContent className="bg-white border-gray-200">
-                      <SelectItem value="LEAD">Lead</SelectItem>
-                      <SelectItem value="ACTIVE">Aktiv</SelectItem>
-                      <SelectItem value="INACTIVE">Inaktiv</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold text-gray-900">E-Mail *</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="email" 
+                        placeholder="max@beispiel.de" 
+                        {...field} 
+                        className="bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold text-gray-900">Telefon</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="+49 123 456789" 
+                        {...field} 
+                        value={field.value || ''} 
+                        className="bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="company"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold text-gray-900">Firma</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Beispiel GmbH" 
+                        {...field} 
+                        value={field.value || ''} 
+                        className="bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="website"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold text-gray-900">Website</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="url"
+                        placeholder="https://beispiel.de"
+                        {...field}
+                        value={field.value || ''}
+                        className="bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold text-gray-900">Status *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                          <SelectValue placeholder="Status auswählen" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-white border-gray-200">
+                        <SelectItem value="LEAD">Lead</SelectItem>
+                        <SelectItem value="ACTIVE">Aktiv</SelectItem>
+                        <SelectItem value="INACTIVE">Inaktiv</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <DialogFooter className="gap-2 pt-4">
               <Button

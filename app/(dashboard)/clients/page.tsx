@@ -65,9 +65,7 @@ export default function ClientsPage() {
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/20">
-              <Users className="h-6 w-6 text-white" />
-            </div>
+            <Users className="h-8 w-8 text-gray-900" />
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-gray-900">
                 Kunden
@@ -102,8 +100,9 @@ export default function ClientsPage() {
                 setSelectedClient(null);
                 setDialogOpen(true);
               }}
+              variant="ghost"
               size="sm"
-              className="h-9 bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-700 hover:to-blue-700"
+              className="h-9 text-gray-900 hover:text-blue-600 hover:bg-blue-50 transition-colors font-semibold"
             >
               <Plus className="mr-2 h-4 w-4" />
               Neuer Kunde

@@ -93,17 +93,17 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
   }
 
   return (
-    <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-white overflow-hidden">
+    <Card className="shadow-[0_4px_20px_rgb(0,0,0,0.06)] border border-gray-200 bg-white overflow-hidden rounded-2xl">
       <Table>
         <TableHeader>
-          <TableRow className="bg-gray-50/50 hover:bg-gray-50/50">
-            <TableHead className="font-bold text-gray-900">Kunde</TableHead>
-            <TableHead className="font-bold text-gray-900">Firma</TableHead>
-            <TableHead className="font-bold text-gray-900">E-Mail</TableHead>
-            <TableHead className="font-bold text-gray-900">Telefon</TableHead>
-            <TableHead className="font-bold text-gray-900">Website</TableHead>
-            <TableHead className="font-bold text-gray-900">Status</TableHead>
-            <TableHead className="font-bold text-gray-900 text-right">Aktionen</TableHead>
+          <TableRow className="bg-gray-50/80 hover:bg-gray-50/80 border-b border-gray-200">
+            <TableHead className="font-bold text-gray-900 text-sm w-[200px]">Kunde</TableHead>
+            <TableHead className="font-bold text-gray-900 text-sm w-[180px]">Firma</TableHead>
+            <TableHead className="font-bold text-gray-900 text-sm w-[220px]">E-Mail</TableHead>
+            <TableHead className="font-bold text-gray-900 text-sm w-[160px]">Telefon</TableHead>
+            <TableHead className="font-bold text-gray-900 text-sm w-[200px]">Website</TableHead>
+            <TableHead className="font-bold text-gray-900 text-sm w-[120px]">Status</TableHead>
+            <TableHead className="font-bold text-gray-900 text-sm text-right w-[140px]">Aktionen</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -113,7 +113,7 @@ export function ClientTableView({ clients, isLoading, onEdit }: ClientTableViewP
             return (
               <TableRow 
                 key={client.id} 
-                className="hover:bg-blue-50/50 transition-colors cursor-pointer group"
+                className="hover:bg-blue-50/30 transition-colors cursor-pointer group border-b border-gray-100 last:border-0"
                 onClick={() => onEdit(client)}
               >
                 {/* Kunde (Avatar + Name) */}
