@@ -29,7 +29,7 @@ interface RevenueChart3DProps {
 export function RevenueChart3D({ data, isLoading }: RevenueChart3DProps) {
   if (isLoading) {
     return (
-      <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30">
+      <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-white">
         <CardHeader>
           <div className="h-6 w-48 skeleton rounded" />
           <div className="h-4 w-64 skeleton rounded mt-2" />
@@ -43,7 +43,7 @@ export function RevenueChart3D({ data, isLoading }: RevenueChart3DProps) {
 
   if (!data || data.length === 0) {
     return (
-      <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30">
+      <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-white">
         <CardHeader>
           <CardTitle className="text-xl font-semibold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
             💰 Revenue Overview
@@ -139,10 +139,7 @@ export function RevenueChart3D({ data, isLoading }: RevenueChart3DProps) {
   };
 
   return (
-    <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 hover:shadow-[0_12px_40px_rgb(0,0,0,0.12)] transition-all duration-500 overflow-hidden">
-      {/* Decorative gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 pointer-events-none" />
-      
+    <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-white hover:shadow-[0_12px_40px_rgb(0,0,0,0.12)] transition-all duration-500 overflow-hidden">
       <CardHeader className="relative">
         <div className="flex items-start justify-between">
           <div>

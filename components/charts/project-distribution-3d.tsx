@@ -57,7 +57,7 @@ const STATUS_CONFIG = {
 export function ProjectDistribution3D({ data, isLoading }: ProjectDistribution3DProps) {
   if (isLoading) {
     return (
-      <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-gradient-to-br from-white via-indigo-50/30 to-purple-50/30">
+      <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-white">
         <CardHeader>
           <div className="h-6 w-48 skeleton rounded" />
           <div className="h-4 w-64 skeleton rounded mt-2" />
@@ -73,7 +73,7 @@ export function ProjectDistribution3D({ data, isLoading }: ProjectDistribution3D
 
   if (total === 0) {
     return (
-      <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-gradient-to-br from-white via-indigo-50/30 to-purple-50/30">
+      <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-white">
         <CardHeader>
           <CardTitle className="text-xl font-semibold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
             📊 Project Distribution
@@ -163,10 +163,7 @@ export function ProjectDistribution3D({ data, isLoading }: ProjectDistribution3D
   };
 
   return (
-    <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-gradient-to-br from-white via-indigo-50/30 to-purple-50/30 hover:shadow-[0_12px_40px_rgb(0,0,0,0.12)] transition-all duration-500 overflow-hidden">
-      {/* Decorative gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-pink-500/5 pointer-events-none" />
-      
+    <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-white hover:shadow-[0_12px_40px_rgb(0,0,0,0.12)] transition-all duration-500 overflow-hidden">
       <CardHeader className="relative">
         <div className="flex items-start justify-between">
           <div>

@@ -30,7 +30,7 @@ interface TaskCompletion3DProps {
 export function TaskCompletion3D({ data, isLoading }: TaskCompletion3DProps) {
   if (isLoading) {
     return (
-      <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-gradient-to-br from-white via-green-50/30 to-teal-50/30">
+      <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-white">
         <CardHeader>
           <div className="h-6 w-48 skeleton rounded" />
           <div className="h-4 w-64 skeleton rounded mt-2" />
@@ -44,7 +44,7 @@ export function TaskCompletion3D({ data, isLoading }: TaskCompletion3DProps) {
 
   if (!data || data.length === 0) {
     return (
-      <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-gradient-to-br from-white via-green-50/30 to-teal-50/30">
+      <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-white">
         <CardHeader>
           <CardTitle className="text-xl font-semibold bg-gradient-to-r from-green-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
             ✅ Task Completion
@@ -124,10 +124,7 @@ export function TaskCompletion3D({ data, isLoading }: TaskCompletion3DProps) {
   };
 
   return (
-    <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-gradient-to-br from-white via-green-50/30 to-teal-50/30 hover:shadow-[0_12px_40px_rgb(0,0,0,0.12)] transition-all duration-500 overflow-hidden">
-      {/* Decorative gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-teal-500/5 to-cyan-500/5 pointer-events-none" />
-      
+    <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-0 bg-white hover:shadow-[0_12px_40px_rgb(0,0,0,0.12)] transition-all duration-500 overflow-hidden">
       <CardHeader className="relative">
         <div className="flex items-start justify-between">
           <div>
