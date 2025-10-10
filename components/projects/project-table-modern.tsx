@@ -11,10 +11,17 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ExternalLink, Calendar, DollarSign } from 'lucide-react';
 import { ProjectStatus } from '@prisma/client';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import type { ProjectWithClient } from '@/types';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface ProjectTableModernProps {
   projects: ProjectWithClient[];
@@ -27,6 +34,24 @@ export function ProjectTableModern({
   isLoading, 
   onEdit 
 }: ProjectTableModernProps) {
+  const queryClient = useQueryClient();
+
+  // Mutation für Status-Update
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ projectId, status }: { projectId: string; status: ProjectStatus }) => {
+      const response = await fetch(`/api/projects/${projectId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (!response.ok) throw new Error('Failed to update status');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+    },
+  });
+
   const getStatusConfig = (status: ProjectStatus) => {
     switch (status) {
       case ProjectStatus.PLANNING:
@@ -129,8 +154,8 @@ export function ProjectTableModern({
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50/80 hover:bg-gray-50/80 border-b border-gray-200">
-              <TableHead className="font-bold text-gray-900 text-sm w-[280px] h-11 py-3 pl-6 text-right">Projekt</TableHead>
-              <TableHead className="font-bold text-gray-900 text-sm w-[180px] h-11 py-3">Kunde</TableHead>
+              <TableHead className="font-bold text-gray-900 text-sm w-[280px] h-11 py-3 pl-6">Projekt</TableHead>
+              <TableHead className="font-bold text-gray-900 text-sm w-[180px] h-11 py-3 pl-8">Kunde</TableHead>
               <TableHead className="font-bold text-gray-900 text-sm w-[140px] h-11 py-3">Status</TableHead>
               <TableHead className="font-bold text-gray-900 text-sm w-[140px] h-11 py-3">Budget</TableHead>
               <TableHead className="font-bold text-gray-900 text-sm w-[180px] h-11 py-3">Zeitraum</TableHead>
@@ -147,7 +172,7 @@ export function ProjectTableModern({
                   className="hover:bg-blue-50/30 transition-colors cursor-pointer group border-b border-gray-100 last:border-0"
                   onClick={() => onEdit(project)}
                 >
-                  <TableCell className="py-4 pl-6 text-right">
+                  <TableCell className="py-4 pl-6">
                     <div className="min-w-0">
                       <Link 
                         href={`/projects/${project.id}`}
@@ -163,7 +188,7 @@ export function ProjectTableModern({
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="py-4">
+                  <TableCell className="py-4 pl-8">
                     <Link 
                       href={`/clients/${project.client.id}`}
                       className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
@@ -173,13 +198,81 @@ export function ProjectTableModern({
                       <ExternalLink className="h-3 w-3 flex-shrink-0" />
                     </Link>
                   </TableCell>
-                  <TableCell className="py-4">
-                    <Badge 
-                      variant={statusConfig.variant}
-                      className={`${statusConfig.color} border font-medium`}
-                    >
-                      {statusConfig.label}
-                    </Badge>
+                  <TableCell className="py-4" onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md">
+                          <Badge
+                            variant={statusConfig.variant}
+                            className={`${statusConfig.color} border font-medium cursor-pointer hover:opacity-80 transition-opacity`}
+                          >
+                            {statusConfig.label}
+                          </Badge>
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-48 bg-white">
+                        <DropdownMenuItem 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            updateStatusMutation.mutate({ projectId: project.id, status: ProjectStatus.PLANNING });
+                          }}
+                          className="cursor-pointer hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700 py-2"
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                            Planung
+                          </span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            updateStatusMutation.mutate({ projectId: project.id, status: ProjectStatus.IN_PROGRESS });
+                          }}
+                          className="cursor-pointer hover:bg-cyan-50 hover:text-cyan-700 focus:bg-cyan-50 focus:text-cyan-700 py-2"
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
+                            In Arbeit
+                          </span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            updateStatusMutation.mutate({ projectId: project.id, status: ProjectStatus.REVIEW });
+                          }}
+                          className="cursor-pointer hover:bg-purple-50 hover:text-purple-700 focus:bg-purple-50 focus:text-purple-700 py-2"
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                            Review
+                          </span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            updateStatusMutation.mutate({ projectId: project.id, status: ProjectStatus.COMPLETED });
+                          }}
+                          className="cursor-pointer hover:bg-green-50 hover:text-green-700 focus:bg-green-50 focus:text-green-700 py-2"
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                            Abgeschlossen
+                          </span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            updateStatusMutation.mutate({ projectId: project.id, status: ProjectStatus.ON_HOLD });
+                          }}
+                          className="cursor-pointer hover:bg-gray-50 hover:text-gray-700 focus:bg-gray-50 focus:text-gray-700 py-2"
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-gray-500"></span>
+                            Pausiert
+                          </span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                   <TableCell className="py-4">
                     {project.budget ? (

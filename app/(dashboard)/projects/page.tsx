@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, FolderKanban, ChevronDown, ChevronUp, Search } from 'lucide-react';
+import { Plus, FolderKanban, ChevronDown, ChevronUp, Search, ArrowUpDown } from 'lucide-react';
 import type { ProjectWithClient } from '@/types';
 
 type ViewMode = 'table' | 'grid';
@@ -39,6 +39,8 @@ export default function ProjectsPage() {
   const [selectedClients, setSelectedClients] = useState<string[]>(
     searchParams.get('client')?.split(',').filter(Boolean) || []
   );
+  const [sortBy, setSortBy] = useState<string>('newest');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({
     from: searchParams.get('dateFrom') ? new Date(searchParams.get('dateFrom')!) : undefined,
     to: searchParams.get('dateTo') ? new Date(searchParams.get('dateTo')!) : undefined,
@@ -64,7 +66,7 @@ export default function ProjectsPage() {
   const filteredProjects = useMemo(() => {
     if (!projects) return [];
 
-    return projects.filter((project) => {
+    let filtered = projects.filter((project) => {
       // Date range filter
       if (dateRange.from && project.startDate) {
         const projectStart = new Date(project.startDate);
@@ -77,14 +79,41 @@ export default function ProjectsPage() {
 
       return true;
     });
-  }, [projects, dateRange]);
+
+    // Sort projects
+    filtered.sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortBy) {
+        case 'newest':
+          comparison = new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+          break;
+        case 'oldest':
+          comparison = new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+          break;
+        case 'startDate':
+          comparison = new Date(b.startDate || 0).getTime() - new Date(a.startDate || 0).getTime();
+          break;
+        case 'endDate':
+          comparison = new Date(b.endDate || 0).getTime() - new Date(a.endDate || 0).getTime();
+          break;
+        default:
+          comparison = 0;
+      }
+      
+      return sortOrder === 'asc' ? -comparison : comparison;
+    });
+
+    return filtered;
+  }, [projects, dateRange, sortBy, sortOrder]);
 
   // Count active filters
   const activeFiltersCount =
     (search ? 1 : 0) +
     selectedStatuses.length +
     selectedClients.length +
-    (dateRange.from || dateRange.to ? 1 : 0);
+    (dateRange.from || dateRange.to ? 1 : 0) +
+    (sortBy !== 'newest' || sortOrder !== 'desc' ? 1 : 0);
 
   // Update URL with filters
   const updateURL = () => {
@@ -104,7 +133,14 @@ export default function ProjectsPage() {
     setSelectedStatuses([]);
     setSelectedClients([]);
     setDateRange({});
+    setSortBy('newest');
+    setSortOrder('desc');
     router.push('/projects', { scroll: false });
+  };
+
+  // Toggle sort order
+  const toggleSortOrder = () => {
+    setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
   };
 
   // Load saved filter config
@@ -299,35 +335,53 @@ export default function ProjectsPage() {
               </SelectContent>
             </Select>
 
-            {/* Kunden Filter */}
-            <Select
-              value={selectedClients.length > 0 ? selectedClients[0] : 'all'}
-              onValueChange={(value) => {
-                setSelectedClients(value === 'all' ? [] : [value]);
-                updateURL();
-              }}
-            >
-              <SelectTrigger className="w-[180px] h-10 border-gray-200 bg-white">
-                <SelectValue placeholder="Alle Kunden" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                <SelectItem 
-                  value="all"
-                  className="cursor-pointer hover:bg-gray-50 focus:bg-gray-50"
-                >
-                  Alle Kunden
-                </SelectItem>
-                {allClients?.map((client) => (
+            {/* Sortierung */}
+            <div className="flex items-center gap-2">
+              <Select
+                value={sortBy}
+                onValueChange={setSortBy}
+              >
+                <SelectTrigger className="w-[180px] h-10 border-gray-200 bg-white">
+                  <SelectValue placeholder="Sortierung" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
                   <SelectItem 
-                    key={client.id}
-                    value={client.id}
-                    className="cursor-pointer hover:bg-blue-50 focus:bg-blue-50"
+                    value="newest"
+                    className="cursor-pointer hover:bg-gray-50 focus:bg-gray-50"
                   >
-                    {client.name}
+                    Neueste zuerst
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                  <SelectItem 
+                    value="oldest"
+                    className="cursor-pointer hover:bg-gray-50 focus:bg-gray-50"
+                  >
+                    Älteste zuerst
+                  </SelectItem>
+                  <SelectItem 
+                    value="startDate"
+                    className="cursor-pointer hover:bg-gray-50 focus:bg-gray-50"
+                  >
+                    Nach Startdatum
+                  </SelectItem>
+                  <SelectItem 
+                    value="endDate"
+                    className="cursor-pointer hover:bg-gray-50 focus:bg-gray-50"
+                  >
+                    Nach Enddatum
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleSortOrder}
+                className="h-10 w-10 p-0 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors bg-white"
+                title={sortOrder === 'asc' ? 'Aufsteigend' : 'Absteigend'}
+              >
+                <ArrowUpDown className={`h-4 w-4 transition-transform ${sortOrder === 'desc' ? 'rotate-180' : ''}`} />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
