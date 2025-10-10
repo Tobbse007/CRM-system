@@ -63,8 +63,8 @@ export function ProjectFormDialog({ open, onOpenChange, project }: ProjectFormDi
       clientId: project.clientId,
       status: project.status,
       budget: project.budget || undefined,
-      startDate: project.startDate ? project.startDate.toISOString() : undefined,
-      endDate: project.endDate ? project.endDate.toISOString() : undefined,
+      startDate: project.startDate ? (typeof project.startDate === 'string' ? project.startDate : new Date(project.startDate).toISOString()) : undefined,
+      endDate: project.endDate ? (typeof project.endDate === 'string' ? project.endDate : new Date(project.endDate).toISOString()) : undefined,
     } : {
       name: '',
       description: '',
@@ -99,7 +99,7 @@ export function ProjectFormDialog({ open, onOpenChange, project }: ProjectFormDi
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-white">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Projekt bearbeiten' : 'Neues Projekt'}</DialogTitle>
           <DialogDescription>
@@ -118,7 +118,7 @@ export function ProjectFormDialog({ open, onOpenChange, project }: ProjectFormDi
                 <FormItem>
                   <FormLabel>Projektname *</FormLabel>
                   <FormControl>
-                    <Input placeholder="Website Redesign" {...field} />
+                    <Input placeholder="Website Redesign" {...field} className="bg-white" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -133,11 +133,11 @@ export function ProjectFormDialog({ open, onOpenChange, project }: ProjectFormDi
                   <FormLabel>Kunde *</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white">
                         <SelectValue placeholder="Kunde auswählen" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="bg-white">
                       {clients?.map((client) => (
                         <SelectItem key={client.id} value={client.id}>
                           {client.name}
@@ -162,6 +162,7 @@ export function ProjectFormDialog({ open, onOpenChange, project }: ProjectFormDi
                       {...field} 
                       value={field.value || ''} 
                       rows={3}
+                      className="bg-white"
                     />
                   </FormControl>
                   <FormMessage />
@@ -178,11 +179,11 @@ export function ProjectFormDialog({ open, onOpenChange, project }: ProjectFormDi
                     <FormLabel>Status *</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-white">
                           <SelectValue placeholder="Status auswählen" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="bg-white">
                         <SelectItem value="PLANNING">Planung</SelectItem>
                         <SelectItem value="IN_PROGRESS">In Arbeit</SelectItem>
                         <SelectItem value="REVIEW">Review</SelectItem>
@@ -208,6 +209,7 @@ export function ProjectFormDialog({ open, onOpenChange, project }: ProjectFormDi
                         {...field}
                         value={field.value || ''}
                         onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                        className="bg-white"
                       />
                     </FormControl>
                     <FormMessage />
@@ -229,7 +231,7 @@ export function ProjectFormDialog({ open, onOpenChange, project }: ProjectFormDi
                           <Button
                             variant="outline"
                             className={cn(
-                              'w-full pl-3 text-left font-normal',
+                              'w-full pl-3 text-left font-normal bg-white',
                               !field.value && 'text-muted-foreground'
                             )}
                           >
@@ -242,7 +244,7 @@ export function ProjectFormDialog({ open, onOpenChange, project }: ProjectFormDi
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
+                      <PopoverContent className="w-auto p-0 bg-white" align="start">
                         <Calendar
                           mode="single"
                           selected={field.value ? new Date(field.value) : undefined}
@@ -268,7 +270,7 @@ export function ProjectFormDialog({ open, onOpenChange, project }: ProjectFormDi
                           <Button
                             variant="outline"
                             className={cn(
-                              'w-full pl-3 text-left font-normal',
+                              'w-full pl-3 text-left font-normal bg-white',
                               !field.value && 'text-muted-foreground'
                             )}
                           >
@@ -281,7 +283,7 @@ export function ProjectFormDialog({ open, onOpenChange, project }: ProjectFormDi
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
+                      <PopoverContent className="w-auto p-0 bg-white" align="start">
                         <Calendar
                           mode="single"
                           selected={field.value ? new Date(field.value) : undefined}

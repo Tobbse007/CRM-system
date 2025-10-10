@@ -124,113 +124,118 @@ export function ProjectTableModern({
   }
 
   return (
-    <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-gray-50 hover:bg-gray-50 border-b border-gray-200">
-            <TableHead className="font-semibold text-gray-900">Projekt</TableHead>
-            <TableHead className="font-semibold text-gray-900">Kunde</TableHead>
-            <TableHead className="font-semibold text-gray-900">Status</TableHead>
-            <TableHead className="font-semibold text-gray-900">Budget</TableHead>
-            <TableHead className="font-semibold text-gray-900">Zeitraum</TableHead>
-            <TableHead className="text-right font-semibold text-gray-900">Aktionen</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {projects.map((project) => {
-            const statusConfig = getStatusConfig(project.status);
-            
-            return (
-              <TableRow 
-                key={project.id}
-                className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-              >
-                <TableCell className="py-4">
-                  <div className="min-w-0">
-                    <Link 
-                      href={`/projects/${project.id}`}
-                      className="font-medium text-gray-900 hover:text-blue-600 transition-colors block truncate"
-                    >
-                      {project.name}
-                    </Link>
-                    {project.description && (
-                      <p className="text-sm text-gray-500 line-clamp-1 mt-0.5">
-                        {project.description}
-                      </p>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell className="py-4">
-                  <Link 
-                    href={`/clients/${project.client.id}`}
-                    className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
-                  >
-                    {project.client.name}
-                    <ExternalLink className="h-3 w-3 flex-shrink-0" />
-                  </Link>
-                </TableCell>
-                <TableCell className="py-4">
-                  <Badge 
-                    variant={statusConfig.variant}
-                    className={`${statusConfig.color} border font-medium`}
-                  >
-                    {statusConfig.label}
-                  </Badge>
-                </TableCell>
-                <TableCell className="py-4">
-                  {project.budget ? (
-                    <div className="flex items-center gap-1.5 text-sm">
-                      <DollarSign className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                      <span className="font-semibold text-gray-900">
-                        {formatCurrency(project.budget)}
-                      </span>
-                    </div>
-                  ) : (
-                    <span className="text-sm text-gray-400">-</span>
-                  )}
-                </TableCell>
-                <TableCell className="py-4">
-                  <div className="flex items-start gap-1.5 text-sm">
-                    <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
+    <div className="shadow-[0_4px_20px_rgb(0,0,0,0.06)] border border-gray-200 bg-white overflow-hidden rounded-2xl">
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gray-50/80 hover:bg-gray-50/80 border-b border-gray-200">
+              <TableHead className="font-bold text-gray-900 text-sm w-[280px] h-11 py-3 pl-6 text-right">Projekt</TableHead>
+              <TableHead className="font-bold text-gray-900 text-sm w-[180px] h-11 py-3">Kunde</TableHead>
+              <TableHead className="font-bold text-gray-900 text-sm w-[140px] h-11 py-3">Status</TableHead>
+              <TableHead className="font-bold text-gray-900 text-sm w-[140px] h-11 py-3">Budget</TableHead>
+              <TableHead className="font-bold text-gray-900 text-sm w-[180px] h-11 py-3">Zeitraum</TableHead>
+              <TableHead className="font-bold text-gray-900 text-sm w-[180px] h-11 py-3 pr-6 text-center">Aktionen</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {projects.map((project) => {
+              const statusConfig = getStatusConfig(project.status);
+              
+              return (
+                <TableRow 
+                  key={project.id}
+                  className="hover:bg-blue-50/30 transition-colors cursor-pointer group border-b border-gray-100 last:border-0"
+                  onClick={() => onEdit(project)}
+                >
+                  <TableCell className="py-4 pl-6 text-right">
                     <div className="min-w-0">
-                      <div className="text-gray-900">
-                        {project.startDate ? formatDate(project.startDate) : '-'}
-                      </div>
-                      {project.endDate && (
-                        <div className="text-gray-500 text-xs mt-0.5">
-                          bis {formatDate(project.endDate)}
-                        </div>
+                      <Link 
+                        href={`/projects/${project.id}`}
+                        className="font-semibold text-gray-900 hover:text-blue-600 transition-colors block truncate"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {project.name}
+                      </Link>
+                      {project.description && (
+                        <p className="text-sm text-gray-500 line-clamp-1 mt-0.5">
+                          {project.description}
+                        </p>
                       )}
                     </div>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right py-4">
-                  <div className="flex items-center justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      asChild
-                      className="h-8 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <Link 
+                      href={`/clients/${project.client.id}`}
+                      className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <Link href={`/projects/${project.id}`}>
-                        Details
-                      </Link>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onEdit(project)}
-                      className="h-8 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                      {project.client.name}
+                      <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                    </Link>
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <Badge 
+                      variant={statusConfig.variant}
+                      className={`${statusConfig.color} border font-medium`}
                     >
-                      Bearbeiten
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+                      {statusConfig.label}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="py-4">
+                    {project.budget ? (
+                      <div className="flex items-center gap-1.5 text-sm">
+                        <DollarSign className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                        <span className="font-semibold text-gray-900">
+                          {formatCurrency(project.budget)}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-gray-400">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <div className="flex items-start gap-1.5 text-sm">
+                      <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <div className="text-gray-900">
+                          {project.startDate ? formatDate(project.startDate) : '-'}
+                        </div>
+                        {project.endDate && (
+                          <div className="text-gray-500 text-xs mt-0.5">
+                            bis {formatDate(project.endDate)}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="py-4 pr-6" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center justify-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        asChild
+                        className="h-8 text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-300 border-gray-200 transition-all duration-200"
+                      >
+                        <Link href={`/projects/${project.id}`}>
+                          Details
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onEdit(project)}
+                        className="h-8 text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-300 border-gray-200 transition-all duration-200"
+                      >
+                        Bearbeiten
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

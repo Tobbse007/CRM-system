@@ -65,7 +65,7 @@ export function ProjectCard({ project, onEdit }: ProjectCardProps) {
   const statusConfig = getStatusConfig(project.status);
 
   return (
-    <div className="group card-modern hover-lift transition-all duration-200">
+    <div className="group card-modern hover-lift transition-all duration-300 hover:shadow-xl hover:scale-[1.02]">
       {/* Header */}
       <div className="p-5 pb-4">
         <div className="flex items-start justify-between gap-3 mb-3">
@@ -128,7 +128,7 @@ export function ProjectCard({ project, onEdit }: ProjectCardProps) {
         {/* Budget */}
         {project.budget && (
           <div className="flex items-center gap-2 text-sm">
-            <DollarSign className="h-4 w-4 text-gray-400 flex-shrink-0" />
+            <DollarSign className="h-4 w-4 text-gray-400 flex-shrink-0 transition-colors group-hover:text-green-500" />
             <span className="font-semibold text-gray-900">
               {formatCurrency(project.budget)}
             </span>
@@ -139,7 +139,7 @@ export function ProjectCard({ project, onEdit }: ProjectCardProps) {
         {/* Dates */}
         {(project.startDate || project.endDate) && (
           <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
+            <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0 transition-colors group-hover:text-blue-500" />
             <div className="min-w-0 flex-1 truncate">
               {project.startDate && formatDate(project.startDate)}
               {project.startDate && project.endDate && ' - '}
@@ -152,13 +152,13 @@ export function ProjectCard({ project, onEdit }: ProjectCardProps) {
       {/* Divider */}
       <div className="h-px bg-gray-100"></div>
 
-      {/* Actions */}
-      <div className="p-4 flex items-center gap-2">
+      {/* Actions - Only visible on hover */}
+      <div className="p-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
         <Button
           variant="outline"
           size="sm"
           asChild
-          className="flex-1 h-9 text-gray-700 hover:text-gray-900 hover:bg-gray-50 border-gray-200"
+          className="flex-1 h-9 text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-300 border-gray-200 transition-all duration-200"
         >
           <Link href={`/projects/${project.id}`}>
             <Eye className="h-4 w-4 mr-1.5" />
@@ -169,7 +169,7 @@ export function ProjectCard({ project, onEdit }: ProjectCardProps) {
           variant="outline"
           size="sm"
           onClick={() => onEdit(project)}
-          className="flex-1 h-9 text-gray-700 hover:text-gray-900 hover:bg-gray-50 border-gray-200"
+          className="flex-1 h-9 text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-300 border-gray-200 transition-all duration-200"
         >
           <Edit className="h-4 w-4 mr-1.5" />
           Bearbeiten
@@ -194,7 +194,14 @@ export function ProjectCardGrid({
     return (
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="card-modern animate-pulse">
+          <div 
+            key={i} 
+            className="card-modern animate-pulse opacity-0 animate-fade-in-up"
+            style={{ 
+              animationDelay: `${i * 50}ms`,
+              animationFillMode: 'forwards'
+            }}
+          >
             <div className="p-5 pb-4">
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="w-10 h-10 rounded-lg bg-gray-200"></div>
@@ -239,12 +246,20 @@ export function ProjectCardGrid({
 
   return (
     <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-      {projects.map((project) => (
-        <ProjectCard 
-          key={project.id} 
-          project={project} 
-          onEdit={onEdit}
-        />
+      {projects.map((project, index) => (
+        <div
+          key={project.id}
+          className="opacity-0 animate-fade-in-up"
+          style={{ 
+            animationDelay: `${index * 50}ms`,
+            animationFillMode: 'forwards'
+          }}
+        >
+          <ProjectCard 
+            project={project} 
+            onEdit={onEdit}
+          />
+        </div>
       ))}
     </div>
   );

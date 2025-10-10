@@ -10,20 +10,16 @@ import { ProjectTableModern } from '@/components/projects/project-table-modern';
 import { ProjectCardGrid } from '@/components/projects/project-card';
 import { ProjectViewToggle } from '@/components/projects/project-view-toggle';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
-  FilterPanel,
-  SearchBar,
-  MultiSelect,
-  DateRangePicker,
-  SavedFilters,
-} from '@/components/filters';
-import type { FilterConfig } from '@/components/filters';
-import { Plus, Filter, FolderKanban, ChevronDown, ChevronUp } from 'lucide-react';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Plus, FolderKanban, ChevronDown, ChevronUp, Search } from 'lucide-react';
 import type { ProjectWithClient } from '@/types';
-import { ExportButton, type ExportFormat } from '@/components/reports/export-button';
-import { exportProjectsToPDF } from '@/lib/export-pdf';
-import { exportProjectsToExcel, exportProjectsToCSV } from '@/lib/export-excel';
-import { X } from 'lucide-react';
 
 type ViewMode = 'table' | 'grid';
 
@@ -120,109 +116,12 @@ export default function ProjectsPage() {
   };
 
   // Get current filter config
+  // Get current filter config
   const currentFilterConfig = {
     search,
     statuses: selectedStatuses,
     clients: selectedClients,
     dateRange,
-  };
-
-  // Build filter configurations
-  const filterConfigs: FilterConfig[] = [
-    {
-      id: 'search',
-      label: 'Suche',
-      value: search,
-      type: 'text',
-      component: (
-        <SearchBar
-          placeholder="Nach Name oder Beschreibung suchen..."
-          value={search}
-          onChange={setSearch}
-          onSearch={updateURL}
-        />
-      ),
-    },
-    {
-      id: 'status',
-      label: 'Status',
-      value: selectedStatuses,
-      type: 'multi-select',
-      component: (
-        <MultiSelect
-          label="Status"
-          placeholder="Status auswählen..."
-          options={[
-            { value: 'PLANNING', label: 'Planung', color: 'blue' },
-            { value: 'IN_PROGRESS', label: 'In Arbeit', color: 'yellow' },
-            { value: 'REVIEW', label: 'Review', color: 'purple' },
-            { value: 'COMPLETED', label: 'Abgeschlossen', color: 'green' },
-            { value: 'ON_HOLD', label: 'Pausiert', color: 'gray' },
-          ]}
-          value={selectedStatuses}
-          onChange={(values) => {
-            setSelectedStatuses(values);
-            updateURL();
-          }}
-        />
-      ),
-    },
-    {
-      id: 'client',
-      label: 'Kunde',
-      value: selectedClients,
-      type: 'multi-select',
-      component: (
-        <MultiSelect
-          label="Kunde"
-          placeholder="Kunden auswählen..."
-          options={
-            allClients?.map((client) => ({
-              value: client.id,
-              label: client.name,
-            })) || []
-          }
-          value={selectedClients}
-          onChange={(values) => {
-            setSelectedClients(values);
-            updateURL();
-          }}
-        />
-      ),
-    },
-    {
-      id: 'dateRange',
-      label: 'Zeitraum',
-      value: dateRange,
-      type: 'date-range',
-      component: (
-        <DateRangePicker
-          label="Zeitraum"
-          placeholder="Zeitraum auswählen..."
-          value={dateRange}
-          onChange={(range) => {
-            setDateRange(range || {});
-            updateURL();
-          }}
-        />
-      ),
-    },
-  ];
-
-  const handleExport = async (format: ExportFormat) => {
-    if (!filteredProjects || filteredProjects.length === 0) {
-      return;
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    if (format === 'pdf') {
-      await exportProjectsToPDF(filteredProjects);
-    } else if (format === 'excel') {
-      await exportProjectsToExcel(filteredProjects);
-    } else if (format === 'csv') {
-      await exportProjectsToCSV(filteredProjects);
-    }
   };
 
   const handleEdit = (project: ProjectWithClient) => {
@@ -312,35 +211,125 @@ export default function ProjectsPage() {
             </button>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          <ExportButton
-            onExport={handleExport}
-            variant="outline"
-            size="sm"
-            disabled={!filteredProjects || filteredProjects.length === 0}
-            className="h-8"
-          />
-          <SavedFilters
-            currentConfig={currentFilterConfig}
-            onLoad={handleLoadFilter}
-            storageKey="crm-project-filters"
-          />
-        </div>
       </div>
 
       {/* Filters */}
       <div 
         className={`
           overflow-hidden transition-all duration-300 ease-in-out
-          ${showFilters ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'}
+          ${showFilters ? 'max-h-[200px] opacity-100' : 'max-h-0 opacity-0'}
         `}
       >
-        <FilterPanel
-          filters={filterConfigs}
-          activeFiltersCount={activeFiltersCount}
-          onReset={handleResetFilters}
-          onApply={updateURL}
-        />
+        <div className="shadow-[0_2px_12px_rgb(0,0,0,0.04)] border border-gray-200 bg-white overflow-hidden rounded-2xl p-5">
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Such-Feld */}
+            <div className="relative flex-1 min-w-[300px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Nach Name oder Beschreibung suchen..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9 h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500 bg-white"
+              />
+            </div>
+            
+            {/* Status Filter */}
+            <Select
+              value={selectedStatuses.length > 0 ? selectedStatuses[0] : 'all'}
+              onValueChange={(value) => {
+                setSelectedStatuses(value === 'all' ? [] : [value]);
+                updateURL();
+              }}
+            >
+              <SelectTrigger className="w-[160px] h-10 border-gray-200 bg-white">
+                <SelectValue placeholder="Alle Status" />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                <SelectItem 
+                  value="all"
+                  className="cursor-pointer hover:bg-gray-50 focus:bg-gray-50"
+                >
+                  Alle Status
+                </SelectItem>
+                <SelectItem 
+                  value="PLANNING"
+                  className="cursor-pointer hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                    Planung
+                  </span>
+                </SelectItem>
+                <SelectItem 
+                  value="IN_PROGRESS"
+                  className="cursor-pointer hover:bg-cyan-50 hover:text-cyan-700 focus:bg-cyan-50 focus:text-cyan-700"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
+                    In Arbeit
+                  </span>
+                </SelectItem>
+                <SelectItem 
+                  value="REVIEW"
+                  className="cursor-pointer hover:bg-purple-50 hover:text-purple-700 focus:bg-purple-50 focus:text-purple-700"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                    Review
+                  </span>
+                </SelectItem>
+                <SelectItem 
+                  value="COMPLETED"
+                  className="cursor-pointer hover:bg-green-50 hover:text-green-700 focus:bg-green-50 focus:text-green-700"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                    Abgeschlossen
+                  </span>
+                </SelectItem>
+                <SelectItem 
+                  value="ON_HOLD"
+                  className="cursor-pointer hover:bg-gray-50 hover:text-gray-700 focus:bg-gray-50 focus:text-gray-700"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-gray-500"></span>
+                    Pausiert
+                  </span>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Kunden Filter */}
+            <Select
+              value={selectedClients.length > 0 ? selectedClients[0] : 'all'}
+              onValueChange={(value) => {
+                setSelectedClients(value === 'all' ? [] : [value]);
+                updateURL();
+              }}
+            >
+              <SelectTrigger className="w-[180px] h-10 border-gray-200 bg-white">
+                <SelectValue placeholder="Alle Kunden" />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                <SelectItem 
+                  value="all"
+                  className="cursor-pointer hover:bg-gray-50 focus:bg-gray-50"
+                >
+                  Alle Kunden
+                </SelectItem>
+                {allClients?.map((client) => (
+                  <SelectItem 
+                    key={client.id}
+                    value={client.id}
+                    className="cursor-pointer hover:bg-blue-50 focus:bg-blue-50"
+                  >
+                    {client.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </div>
 
       {/* Error State */}
