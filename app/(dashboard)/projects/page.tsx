@@ -67,6 +67,18 @@ export default function ProjectsPage() {
     if (!projects) return [];
 
     let filtered = projects.filter((project) => {
+      // Search filter - jetzt auch nach Kunden-Namen
+      if (search) {
+        const searchLower = search.toLowerCase();
+        const matchesProjectName = project.name.toLowerCase().includes(searchLower);
+        const matchesProjectDescription = project.description?.toLowerCase().includes(searchLower);
+        const matchesClientName = project.client?.name.toLowerCase().includes(searchLower);
+        
+        if (!matchesProjectName && !matchesProjectDescription && !matchesClientName) {
+          return false;
+        }
+      }
+
       // Date range filter
       if (dateRange.from && project.startDate) {
         const projectStart = new Date(project.startDate);
@@ -262,7 +274,7 @@ export default function ProjectsPage() {
             <div className="relative flex-1 min-w-[300px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Nach Name oder Beschreibung suchen..."
+                placeholder="Nach Projekt, Kunde oder Beschreibung suchen..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9 h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500 bg-white"

@@ -118,13 +118,14 @@ export function Timer({
           <>
             <div className="flex items-center gap-1.5 text-sm font-mono">
               <Clock className="h-4 w-4 text-green-600 animate-pulse" />
-              <span>{formatTimeHHMMSS(elapsedSeconds)}</span>
+              <span className="text-gray-900 font-semibold">{formatTimeHHMMSS(elapsedSeconds)}</span>
             </div>
             <Button
               size="sm"
               variant="destructive"
               onClick={handleStop}
               disabled={stopTimer.isPending}
+              className="text-white"
             >
               <Square className="h-4 w-4" />
             </Button>
@@ -165,7 +166,7 @@ export function Timer({
             </div>
           )}
           <Button
-            className="w-full"
+            className="w-full text-white"
             variant="destructive"
             onClick={handleStop}
             disabled={stopTimer.isPending}

@@ -17,7 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ExternalLink, Calendar, DollarSign } from 'lucide-react';
+import { ExternalLink, Calendar, DollarSign, Eye, Edit } from 'lucide-react';
 import { ProjectStatus } from '@prisma/client';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import type { ProjectWithClient } from '@/types';
@@ -150,18 +150,17 @@ export function ProjectTableModern({
 
   return (
     <div className="shadow-[0_4px_20px_rgb(0,0,0,0.06)] border border-gray-200 bg-white overflow-hidden rounded-2xl">
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-gray-50/80 hover:bg-gray-50/80 border-b border-gray-200">
-              <TableHead className="font-bold text-gray-900 text-sm w-[280px] h-11 py-3 pl-6">Projekt</TableHead>
-              <TableHead className="font-bold text-gray-900 text-sm w-[180px] h-11 py-3 pl-8">Kunde</TableHead>
-              <TableHead className="font-bold text-gray-900 text-sm w-[140px] h-11 py-3">Status</TableHead>
-              <TableHead className="font-bold text-gray-900 text-sm w-[140px] h-11 py-3">Budget</TableHead>
-              <TableHead className="font-bold text-gray-900 text-sm w-[180px] h-11 py-3">Zeitraum</TableHead>
-              <TableHead className="font-bold text-gray-900 text-sm w-[180px] h-11 py-3 pr-6 text-center">Aktionen</TableHead>
-            </TableRow>
-          </TableHeader>
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-gray-50/80 hover:bg-gray-50/80 border-b border-gray-200">
+            <TableHead className="font-bold text-gray-900 text-sm w-[280px] h-11 py-3 pl-6">Projekt</TableHead>
+            <TableHead className="font-bold text-gray-900 text-sm w-[160px] h-11 py-3 pl-4">Kunde</TableHead>
+            <TableHead className="font-bold text-gray-900 text-sm w-[130px] h-11 py-3 pl-4">Status</TableHead>
+            <TableHead className="font-bold text-gray-900 text-sm w-[130px] h-11 py-3 pl-4">Budget</TableHead>
+            <TableHead className="font-bold text-gray-900 text-sm w-[160px] h-11 py-3 pl-4">Zeitraum</TableHead>
+            <TableHead className="font-bold text-gray-900 text-sm w-[220px] h-11 py-3 pr-6 text-center">Aktionen</TableHead>
+          </TableRow>
+        </TableHeader>
           <TableBody>
             {projects.map((project) => {
               const statusConfig = getStatusConfig(project.status);
@@ -172,7 +171,7 @@ export function ProjectTableModern({
                   className="hover:bg-blue-50/30 transition-colors cursor-pointer group border-b border-gray-100 last:border-0"
                   onClick={() => onEdit(project)}
                 >
-                  <TableCell className="py-4 pl-6">
+                  <TableCell className="py-4 pl-6 max-w-[280px]">
                     <div className="min-w-0">
                       <Link 
                         href={`/projects/${project.id}`}
@@ -182,19 +181,19 @@ export function ProjectTableModern({
                         {project.name}
                       </Link>
                       {project.description && (
-                        <p className="text-sm text-gray-500 line-clamp-1 mt-0.5">
+                        <p className="text-sm text-gray-500 truncate mt-0.5">
                           {project.description}
                         </p>
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="py-4 pl-8">
+                  <TableCell className="py-4 pl-8 max-w-[160px]">
                     <Link 
                       href={`/clients/${project.client.id}`}
-                      className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                      className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors truncate"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {project.client.name}
+                      <span className="truncate">{project.client.name}</span>
                       <ExternalLink className="h-3 w-3 flex-shrink-0" />
                     </Link>
                   </TableCell>
@@ -310,6 +309,7 @@ export function ProjectTableModern({
                         className="h-8 text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-300 border-gray-200 transition-all duration-200"
                       >
                         <Link href={`/projects/${project.id}`}>
+                          <Eye className="h-4 w-4 mr-1.5" />
                           Details
                         </Link>
                       </Button>
@@ -319,6 +319,7 @@ export function ProjectTableModern({
                         onClick={() => onEdit(project)}
                         className="h-8 text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-300 border-gray-200 transition-all duration-200"
                       >
+                        <Edit className="h-4 w-4 mr-1.5" />
                         Bearbeiten
                       </Button>
                     </div>
@@ -328,7 +329,6 @@ export function ProjectTableModern({
             })}
           </TableBody>
         </Table>
-      </div>
     </div>
   );
 }
