@@ -437,13 +437,8 @@ export function ProjectTableModern({
                     </DropdownMenu>
                   </TableCell>
                   <TableCell 
-                    className="py-4 group/budget cursor-pointer" 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (editingBudget !== project.id) {
-                        handleBudgetEdit(project);
-                      }
-                    }}
+                    className="py-4" 
+                    onClick={(e) => e.stopPropagation()}
                   >
                     {editingBudget === project.id ? (
                       <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
@@ -455,14 +450,23 @@ export function ProjectTableModern({
                           onBlur={() => handleBudgetSave(project.id)}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') handleBudgetSave(project.id);
-                            if (e.key === 'Escape') setEditingBudget(null);
+                            if (e.key === 'Escape') {
+                              setEditingBudget(null);
+                              setBudgetValue('');
+                            }
                           }}
                           className="h-8 w-28 text-sm bg-white"
                           autoFocus
                         />
                       </div>
                     ) : (
-                      <div className="flex items-center gap-1.5 text-sm">
+                      <div 
+                        className="flex items-center gap-1.5 text-sm group/budget cursor-pointer inline-flex"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBudgetEdit(project);
+                        }}
+                      >
                         <DollarSign className="h-4 w-4 text-gray-400 group-hover/budget:text-green-600 flex-shrink-0 transition-colors" />
                         <span className="font-semibold text-gray-900 group-hover/budget:text-green-600 transition-colors">
                           {project.budget ? formatCurrency(project.budget) : '-'}
@@ -471,13 +475,8 @@ export function ProjectTableModern({
                     )}
                   </TableCell>
                   <TableCell 
-                    className="py-4 group/date cursor-pointer" 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (editingDate !== project.id) {
-                        handleDateEdit(project);
-                      }
-                    }}
+                    className="py-4" 
+                    onClick={(e) => e.stopPropagation()}
                   >
                     {editingDate === project.id ? (
                       <div className="flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
@@ -485,6 +484,21 @@ export function ProjectTableModern({
                           type="date"
                           value={dateValue.startDate}
                           onChange={(e) => setDateValue({ ...dateValue, startDate: e.target.value })}
+                          onBlur={(e) => {
+                            // Nur speichern wenn Focus wirklich außerhalb ist
+                            setTimeout(() => {
+                              if (!e.relatedTarget || !e.currentTarget.parentElement?.contains(e.relatedTarget as Node)) {
+                                handleDateSave(project.id);
+                              }
+                            }, 100);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleDateSave(project.id);
+                            if (e.key === 'Escape') {
+                              setEditingDate(null);
+                              setDateValue({ startDate: '', endDate: '' });
+                            }
+                          }}
                           className="h-8 text-xs bg-white"
                           placeholder="Start"
                         />
@@ -495,14 +509,23 @@ export function ProjectTableModern({
                           onBlur={() => handleDateSave(project.id)}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') handleDateSave(project.id);
-                            if (e.key === 'Escape') setEditingDate(null);
+                            if (e.key === 'Escape') {
+                              setEditingDate(null);
+                              setDateValue({ startDate: '', endDate: '' });
+                            }
                           }}
                           className="h-8 text-xs bg-white"
                           placeholder="Ende"
                         />
                       </div>
                     ) : (
-                      <div className="flex items-start gap-1.5 text-sm">
+                      <div 
+                        className="flex items-start gap-1.5 text-sm group/date cursor-pointer inline-flex"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDateEdit(project);
+                        }}
+                      >
                         <Calendar className="h-4 w-4 text-gray-400 group-hover/date:text-purple-600 flex-shrink-0 mt-0.5 transition-colors" />
                         <div className="min-w-0">
                           <div className="text-gray-900 group-hover/date:text-purple-600 transition-colors">
