@@ -31,7 +31,7 @@ export function ClientCard({ client, onEdit }: ClientCardProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  // Mutation für Status-Update
+  // Mutation für Status-Update mit Optimistic Update
   const updateStatusMutation = useMutation({
     mutationFn: async ({ clientId, status }: { clientId: string; status: ClientStatus }) => {
       const response = await fetch(`/api/clients/${clientId}`, {
@@ -42,30 +42,48 @@ export function ClientCard({ client, onEdit }: ClientCardProps) {
       if (!response.ok) throw new Error('Failed to update status');
       return response.json();
     },
-    onSuccess: () => {
+    onMutate: async ({ clientId, status }) => {
+      await queryClient.cancelQueries({ queryKey: ['clients'] });
+      const previousClients = queryClient.getQueryData(['clients']);
+      
+      queryClient.setQueryData(['clients'], (old: any) => {
+        if (!old) return old;
+        return old.map((client: any) => 
+          client.id === clientId ? { ...client, status } : client
+        );
+      });
+      
+      return { previousClients };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousClients) {
+        queryClient.setQueryData(['clients'], context.previousClients);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
     },
   });
 
   const getStatusConfig = (status: ClientStatus) => {
     switch (status) {
-      case ClientStatus.ACTIVE:
+      case ClientStatus.INACTIVE:
         return {
-          label: 'Aktiv',
-          color: 'text-green-700 bg-green-50 border-green-200',
-          dotColor: 'bg-green-500',
+          label: 'Inaktiv',
+          color: 'text-red-700 bg-red-50 border-red-300',
+          dotColor: 'bg-red-500',
         };
       case ClientStatus.LEAD:
         return {
           label: 'Lead',
-          color: 'text-blue-700 bg-blue-50 border-blue-200',
-          dotColor: 'bg-blue-500',
+          color: 'text-yellow-700 bg-yellow-50 border-yellow-300',
+          dotColor: 'bg-yellow-500',
         };
-      case ClientStatus.INACTIVE:
+      case ClientStatus.ACTIVE:
         return {
-          label: 'Inaktiv',
-          color: 'text-gray-700 bg-gray-50 border-gray-200',
-          dotColor: 'bg-gray-500',
+          label: 'Aktiv',
+          color: 'text-green-700 bg-green-100 border-green-300',
+          dotColor: 'bg-green-500',
         };
       default:
         return {
@@ -162,25 +180,25 @@ export function ClientCard({ client, onEdit }: ClientCardProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-40 bg-white">
                 <DropdownMenuItem 
-                  onClick={() => updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.ACTIVE })}
-                  className="cursor-pointer"
+                  onClick={() => updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.INACTIVE })}
+                  className="cursor-pointer hover:bg-red-50 hover:text-red-700 focus:bg-red-50 focus:text-red-700 py-2"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></span>
-                  Aktiv
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span>
+                  Inaktiv
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.LEAD })}
-                  className="cursor-pointer"
+                  className="cursor-pointer hover:bg-yellow-50 hover:text-yellow-700 focus:bg-yellow-50 focus:text-yellow-700 py-2"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 mr-2"></span>
                   Lead
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.INACTIVE })}
-                  className="cursor-pointer"
+                  onClick={() => updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.ACTIVE })}
+                  className="cursor-pointer hover:bg-green-50 hover:text-green-700 focus:bg-green-50 focus:text-green-700 py-2"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-gray-500 mr-2"></span>
-                  Inaktiv
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-2"></span>
+                  Aktiv
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -203,25 +221,25 @@ export function ClientCard({ client, onEdit }: ClientCardProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-40 bg-white">
                 <DropdownMenuItem 
-                  onClick={() => updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.ACTIVE })}
-                  className="cursor-pointer"
+                  onClick={() => updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.INACTIVE })}
+                  className="cursor-pointer hover:bg-red-50 hover:text-red-700 focus:bg-red-50 focus:text-red-700 py-2"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></span>
-                  Aktiv
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span>
+                  Inaktiv
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.LEAD })}
-                  className="cursor-pointer"
+                  className="cursor-pointer hover:bg-yellow-50 hover:text-yellow-700 focus:bg-yellow-50 focus:text-yellow-700 py-2"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 mr-2"></span>
                   Lead
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.INACTIVE })}
-                  className="cursor-pointer"
+                  onClick={() => updateStatusMutation.mutate({ clientId: client.id, status: ClientStatus.ACTIVE })}
+                  className="cursor-pointer hover:bg-green-50 hover:text-green-700 focus:bg-green-50 focus:text-green-700 py-2"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-gray-500 mr-2"></span>
-                  Inaktiv
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-2"></span>
+                  Aktiv
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

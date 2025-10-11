@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { projectSchema } from '@/lib/validations/project';
@@ -57,15 +58,7 @@ export function ProjectFormDialog({ open, onOpenChange, project }: ProjectFormDi
 
   const form = useForm<CreateProjectDTO>({
     resolver: zodResolver(projectSchema),
-    defaultValues: project ? {
-      name: project.name,
-      description: project.description || '',
-      clientId: project.clientId,
-      status: project.status,
-      budget: project.budget || undefined,
-      startDate: project.startDate ? (typeof project.startDate === 'string' ? project.startDate : new Date(project.startDate).toISOString()) : undefined,
-      endDate: project.endDate ? (typeof project.endDate === 'string' ? project.endDate : new Date(project.endDate).toISOString()) : undefined,
-    } : {
+    defaultValues: {
       name: '',
       description: '',
       clientId: '',
@@ -75,6 +68,31 @@ export function ProjectFormDialog({ open, onOpenChange, project }: ProjectFormDi
       endDate: undefined,
     },
   });
+
+  // Update form values when project changes
+  useEffect(() => {
+    if (project && open) {
+      form.reset({
+        name: project.name,
+        description: project.description || '',
+        clientId: project.clientId,
+        status: project.status,
+        budget: project.budget || undefined,
+        startDate: project.startDate ? (typeof project.startDate === 'string' ? project.startDate : new Date(project.startDate).toISOString().split('T')[0]) : undefined,
+        endDate: project.endDate ? (typeof project.endDate === 'string' ? project.endDate : new Date(project.endDate).toISOString().split('T')[0]) : undefined,
+      });
+    } else if (!project && open) {
+      form.reset({
+        name: '',
+        description: '',
+        clientId: '',
+        status: 'PLANNING',
+        budget: undefined,
+        startDate: undefined,
+        endDate: undefined,
+      });
+    }
+  }, [project, open, form]);
 
   const onSubmit = async (data: CreateProjectDTO) => {
     try {
@@ -131,7 +149,7 @@ export function ProjectFormDialog({ open, onOpenChange, project }: ProjectFormDi
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Kunde *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="bg-white">
                         <SelectValue placeholder="Kunde auswählen" />
@@ -177,7 +195,7 @@ export function ProjectFormDialog({ open, onOpenChange, project }: ProjectFormDi
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="bg-white">
                           <SelectValue placeholder="Status auswählen" />

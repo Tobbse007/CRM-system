@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useClients } from '@/hooks/use-clients';
 import { ClientFormDialog } from '@/components/clients/client-form-dialog';
 import { ClientStats } from '@/components/clients/client-stats';
@@ -22,6 +23,9 @@ import type { Client } from '@/types';
 type ViewType = 'grid' | 'table';
 
 export default function ClientsPage() {
+  const searchParams = useSearchParams();
+  const filterParam = searchParams.get('filter');
+  
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('name');
@@ -47,11 +51,18 @@ export default function ClientsPage() {
 
   const { data: clientsRaw, isLoading, error } = useClients({ search, status: statusFilter });
 
-  // Sort clients client-side
+  // Sort and filter clients client-side
   const clients = useMemo(() => {
     if (!clientsRaw) return [];
     
-    const sorted = [...clientsRaw].sort((a, b) => {
+    let filtered = clientsRaw;
+    
+    // Apply filter parameter if present
+    if (filterParam) {
+      filtered = clientsRaw.filter(client => client.id === filterParam);
+    }
+    
+    const sorted = [...filtered].sort((a, b) => {
       let comparison = 0;
       
       switch (sortBy) {
@@ -75,10 +86,10 @@ export default function ClientsPage() {
     });
     
     return sorted;
-  }, [clientsRaw, sortBy, sortOrder]);
+  }, [clientsRaw, sortBy, sortOrder, filterParam]);
 
   // Count active filters
-  const activeFiltersCount = (search ? 1 : 0) + (statusFilter ? 1 : 0) + (sortBy !== 'name' || sortOrder !== 'asc' ? 1 : 0);
+  const activeFiltersCount = (search ? 1 : 0) + (statusFilter ? 1 : 0) + (sortBy !== 'name' || sortOrder !== 'asc' ? 1 : 0) + (filterParam ? 1 : 0);
 
   // Toggle sort order
   const toggleSortOrder = () => {

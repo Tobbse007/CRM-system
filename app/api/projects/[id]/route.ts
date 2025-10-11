@@ -140,3 +140,45 @@ export async function DELETE(
     );
   }
 }
+
+// PATCH /api/projects/[id] - Einzelne Felder aktualisieren
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const body = await request.json();
+    
+    // Prepare update data
+    const updateData: any = {};
+    
+    if (body.status !== undefined) {
+      updateData.status = body.status;
+    }
+    if (body.budget !== undefined) {
+      updateData.budget = body.budget;
+    }
+    if (body.startDate !== undefined) {
+      updateData.startDate = body.startDate ? new Date(body.startDate) : null;
+    }
+    if (body.endDate !== undefined) {
+      updateData.endDate = body.endDate ? new Date(body.endDate) : null;
+    }
+
+    const project = await prisma.project.update({
+      where: { id: params.id },
+      data: updateData,
+      include: {
+        client: true,
+      },
+    });
+
+    return NextResponse.json({ success: true, data: project });
+  } catch (error) {
+    console.error('PATCH /api/projects/[id] error:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to update project' },
+      { status: 500 }
+    );
+  }
+}

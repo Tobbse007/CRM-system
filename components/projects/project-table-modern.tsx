@@ -1,8 +1,11 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -34,9 +37,14 @@ export function ProjectTableModern({
   isLoading, 
   onEdit 
 }: ProjectTableModernProps) {
+  const router = useRouter();
   const queryClient = useQueryClient();
+  const [editingBudget, setEditingBudget] = useState<string | null>(null);
+  const [editingDate, setEditingDate] = useState<string | null>(null);
+  const [budgetValue, setBudgetValue] = useState<string>('');
+  const [dateValue, setDateValue] = useState<{ startDate: string; endDate: string }>({ startDate: '', endDate: '' });
 
-  // Mutation für Status-Update
+  // Mutation für Status-Update mit Optimistic Update
   const updateStatusMutation = useMutation({
     mutationFn: async ({ projectId, status }: { projectId: string; status: ProjectStatus }) => {
       const response = await fetch(`/api/projects/${projectId}`, {
@@ -47,23 +55,158 @@ export function ProjectTableModern({
       if (!response.ok) throw new Error('Failed to update status');
       return response.json();
     },
-    onSuccess: () => {
+    onMutate: async ({ projectId, status }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['projects'] });
+      
+      // Snapshot previous value
+      const previousProjects = queryClient.getQueryData(['projects']);
+      
+      // Optimistically update
+      queryClient.setQueryData(['projects'], (old: any) => {
+        if (!old) return old;
+        return old.map((project: any) => 
+          project.id === projectId ? { ...project, status } : project
+        );
+      });
+      
+      return { previousProjects };
+    },
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousProjects) {
+        queryClient.setQueryData(['projects'], context.previousProjects);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
   });
 
+  // Mutation für Budget-Update mit Optimistic Update
+  const updateBudgetMutation = useMutation({
+    mutationFn: async ({ projectId, budget }: { projectId: string; budget: number | null }) => {
+      const response = await fetch(`/api/projects/${projectId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ budget }),
+      });
+      if (!response.ok) throw new Error('Failed to update budget');
+      return response.json();
+    },
+    onMutate: async ({ projectId, budget }) => {
+      await queryClient.cancelQueries({ queryKey: ['projects'] });
+      const previousProjects = queryClient.getQueryData(['projects']);
+      
+      queryClient.setQueryData(['projects'], (old: any) => {
+        if (!old) return old;
+        return old.map((project: any) => 
+          project.id === projectId ? { ...project, budget } : project
+        );
+      });
+      
+      return { previousProjects };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousProjects) {
+        queryClient.setQueryData(['projects'], context.previousProjects);
+      }
+    },
+    onSuccess: () => {
+      setEditingBudget(null);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+    },
+  });
+
+  // Mutation für Datum-Update mit Optimistic Update
+  const updateDateMutation = useMutation({
+    mutationFn: async ({ projectId, startDate, endDate }: { projectId: string; startDate?: string; endDate?: string }) => {
+      const response = await fetch(`/api/projects/${projectId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ startDate, endDate }),
+      });
+      if (!response.ok) throw new Error('Failed to update dates');
+      return response.json();
+    },
+    onMutate: async ({ projectId, startDate, endDate }) => {
+      await queryClient.cancelQueries({ queryKey: ['projects'] });
+      const previousProjects = queryClient.getQueryData(['projects']);
+      
+      queryClient.setQueryData(['projects'], (old: any) => {
+        if (!old) return old;
+        return old.map((project: any) => 
+          project.id === projectId ? { ...project, startDate, endDate } : project
+        );
+      });
+      
+      return { previousProjects };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousProjects) {
+        queryClient.setQueryData(['projects'], context.previousProjects);
+      }
+    },
+    onSuccess: () => {
+      setEditingDate(null);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+    },
+  });
+
+  const handleBudgetEdit = (project: ProjectWithClient) => {
+    setEditingBudget(project.id);
+    setBudgetValue(project.budget?.toString() || '');
+  };
+
+  const handleBudgetSave = (projectId: string) => {
+    const budget = budgetValue ? parseFloat(budgetValue) : null;
+    updateBudgetMutation.mutate({ projectId, budget });
+  };
+
+  const handleDateEdit = (project: ProjectWithClient) => {
+    setEditingDate(project.id);
+    const startDateStr = project.startDate 
+      ? new Date(project.startDate).toISOString().split('T')[0]
+      : '';
+    const endDateStr = project.endDate 
+      ? new Date(project.endDate).toISOString().split('T')[0]
+      : '';
+    setDateValue({ startDate: startDateStr, endDate: endDateStr });
+  };
+
+  const handleDateSave = (projectId: string) => {
+    updateDateMutation.mutate({ 
+      projectId, 
+      startDate: dateValue.startDate || undefined, 
+      endDate: dateValue.endDate || undefined 
+    });
+  };
+
+  const handleRowClick = (projectId: string) => {
+    router.push(`/projects/${projectId}`);
+  };
+
+  const handleClientClick = (clientId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`/clients?filter=${clientId}`);
+  };
+
   const getStatusConfig = (status: ProjectStatus) => {
     switch (status) {
-      case ProjectStatus.PLANNING:
-        return { label: 'Planung', variant: 'outline' as const, color: 'text-blue-600 bg-blue-50 border-blue-200' };
-      case ProjectStatus.IN_PROGRESS:
-        return { label: 'In Arbeit', variant: 'default' as const, color: 'text-cyan-700 bg-cyan-100 border-cyan-200' };
-      case ProjectStatus.REVIEW:
-        return { label: 'Review', variant: 'secondary' as const, color: 'text-purple-600 bg-purple-50 border-purple-200' };
-      case ProjectStatus.COMPLETED:
-        return { label: 'Abgeschlossen', variant: 'default' as const, color: 'text-green-700 bg-green-100 border-green-200' };
       case ProjectStatus.ON_HOLD:
-        return { label: 'Pausiert', variant: 'secondary' as const, color: 'text-gray-600 bg-gray-100 border-gray-200' };
+        return { label: 'Pausiert', variant: 'secondary' as const, color: 'text-red-700 bg-red-50 border-red-300' };
+      case ProjectStatus.PLANNING:
+        return { label: 'Planung', variant: 'outline' as const, color: 'text-yellow-700 bg-yellow-50 border-yellow-300' };
+      case ProjectStatus.IN_PROGRESS:
+        return { label: 'In Arbeit', variant: 'default' as const, color: 'text-orange-700 bg-orange-100 border-orange-300' };
+      case ProjectStatus.REVIEW:
+        return { label: 'Review', variant: 'secondary' as const, color: 'text-blue-700 bg-blue-100 border-blue-300' };
+      case ProjectStatus.COMPLETED:
+        return { label: 'Abgeschlossen', variant: 'default' as const, color: 'text-green-700 bg-green-100 border-green-300' };
       default:
         return { label: status, variant: 'outline' as const, color: 'text-gray-600 bg-gray-50 border-gray-200' };
     }
@@ -78,7 +221,7 @@ export function ProjectTableModern({
               <TableHead className="font-semibold text-gray-900">Projekt</TableHead>
               <TableHead className="font-semibold text-gray-900">Kunde</TableHead>
               <TableHead className="font-semibold text-gray-900">Status</TableHead>
-              <TableHead className="font-semibold text-gray-900">Budget</TableHead>
+              <TableHead className="font-semibold text-gray-900">Umsatz</TableHead>
               <TableHead className="font-semibold text-gray-900">Zeitraum</TableHead>
               <TableHead className="text-right font-semibold text-gray-900">Aktionen</TableHead>
             </TableRow>
@@ -156,7 +299,7 @@ export function ProjectTableModern({
             <TableHead className="font-bold text-gray-900 text-sm w-[280px] h-11 py-3 pl-6">Projekt</TableHead>
             <TableHead className="font-bold text-gray-900 text-sm w-[160px] h-11 py-3 pl-4">Kunde</TableHead>
             <TableHead className="font-bold text-gray-900 text-sm w-[130px] h-11 py-3 pl-4">Status</TableHead>
-            <TableHead className="font-bold text-gray-900 text-sm w-[130px] h-11 py-3 pl-4">Budget</TableHead>
+            <TableHead className="font-bold text-gray-900 text-sm w-[130px] h-11 py-3 pl-4">Umsatz</TableHead>
             <TableHead className="font-bold text-gray-900 text-sm w-[160px] h-11 py-3 pl-4">Zeitraum</TableHead>
             <TableHead className="font-bold text-gray-900 text-sm w-[220px] h-11 py-3 pr-6 text-center">Aktionen</TableHead>
           </TableRow>
@@ -169,17 +312,16 @@ export function ProjectTableModern({
                 <TableRow 
                   key={project.id}
                   className="hover:bg-blue-50/30 transition-colors cursor-pointer group border-b border-gray-100 last:border-0"
-                  onClick={() => onEdit(project)}
+                  onClick={() => handleRowClick(project.id)}
                 >
-                  <TableCell className="py-4 pl-6 max-w-[280px]">
+                  <TableCell className="py-4 pl-6 max-w-[280px]" onClick={(e) => e.stopPropagation()}>
                     <div className="min-w-0">
-                      <Link 
-                        href={`/projects/${project.id}`}
-                        className="font-semibold text-gray-900 hover:text-blue-600 transition-colors block truncate"
-                        onClick={(e) => e.stopPropagation()}
+                      <div
+                        className="font-semibold text-gray-900 hover:text-blue-600 transition-colors block truncate cursor-pointer"
+                        onClick={() => handleRowClick(project.id)}
                       >
                         {project.name}
-                      </Link>
+                      </div>
                       {project.description && (
                         <p className="text-sm text-gray-500 truncate mt-0.5">
                           {project.description}
@@ -187,15 +329,14 @@ export function ProjectTableModern({
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="py-4 pl-8 max-w-[160px]">
-                    <Link 
-                      href={`/clients/${project.client.id}`}
-                      className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors truncate"
-                      onClick={(e) => e.stopPropagation()}
+                  <TableCell className="py-4 pl-8 max-w-[160px]" onClick={(e) => e.stopPropagation()}>
+                    <div 
+                      onClick={(e) => handleClientClick(project.client.id, e)}
+                      className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors truncate cursor-pointer"
                     >
                       <span className="truncate">{project.client.name}</span>
                       <ExternalLink className="h-3 w-3 flex-shrink-0" />
-                    </Link>
+                    </div>
                   </TableCell>
                   <TableCell className="py-4" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
@@ -213,12 +354,24 @@ export function ProjectTableModern({
                         <DropdownMenuItem 
                           onClick={(e) => {
                             e.stopPropagation();
-                            updateStatusMutation.mutate({ projectId: project.id, status: ProjectStatus.PLANNING });
+                            updateStatusMutation.mutate({ projectId: project.id, status: ProjectStatus.ON_HOLD });
                           }}
-                          className="cursor-pointer hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700 py-2"
+                          className="cursor-pointer hover:bg-red-50 hover:text-red-700 focus:bg-red-50 focus:text-red-700 py-2"
                         >
                           <span className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                            <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                            Pausiert
+                          </span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            updateStatusMutation.mutate({ projectId: project.id, status: ProjectStatus.PLANNING });
+                          }}
+                          className="cursor-pointer hover:bg-yellow-50 hover:text-yellow-700 focus:bg-yellow-50 focus:text-yellow-700 py-2"
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
                             Planung
                           </span>
                         </DropdownMenuItem>
@@ -227,10 +380,10 @@ export function ProjectTableModern({
                             e.stopPropagation();
                             updateStatusMutation.mutate({ projectId: project.id, status: ProjectStatus.IN_PROGRESS });
                           }}
-                          className="cursor-pointer hover:bg-cyan-50 hover:text-cyan-700 focus:bg-cyan-50 focus:text-cyan-700 py-2"
+                          className="cursor-pointer hover:bg-orange-50 hover:text-orange-700 focus:bg-orange-50 focus:text-orange-700 py-2"
                         >
                           <span className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
+                            <span className="w-2 h-2 rounded-full bg-orange-500"></span>
                             In Arbeit
                           </span>
                         </DropdownMenuItem>
@@ -239,10 +392,10 @@ export function ProjectTableModern({
                             e.stopPropagation();
                             updateStatusMutation.mutate({ projectId: project.id, status: ProjectStatus.REVIEW });
                           }}
-                          className="cursor-pointer hover:bg-purple-50 hover:text-purple-700 focus:bg-purple-50 focus:text-purple-700 py-2"
+                          className="cursor-pointer hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700 py-2"
                         >
                           <span className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                            <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                             Review
                           </span>
                         </DropdownMenuItem>
@@ -258,47 +411,89 @@ export function ProjectTableModern({
                             Abgeschlossen
                           </span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            updateStatusMutation.mutate({ projectId: project.id, status: ProjectStatus.ON_HOLD });
-                          }}
-                          className="cursor-pointer hover:bg-gray-50 hover:text-gray-700 focus:bg-gray-50 focus:text-gray-700 py-2"
-                        >
-                          <span className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-gray-500"></span>
-                            Pausiert
-                          </span>
-                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
-                  <TableCell className="py-4">
-                    {project.budget ? (
-                      <div className="flex items-center gap-1.5 text-sm">
-                        <DollarSign className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                        <span className="font-semibold text-gray-900">
-                          {formatCurrency(project.budget)}
-                        </span>
+                  <TableCell 
+                    className="py-4 group/budget cursor-pointer" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (editingBudget !== project.id) {
+                        handleBudgetEdit(project);
+                      }
+                    }}
+                  >
+                    {editingBudget === project.id ? (
+                      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                        <DollarSign className="h-4 w-4 text-green-600 flex-shrink-0" />
+                        <Input
+                          type="number"
+                          value={budgetValue}
+                          onChange={(e) => setBudgetValue(e.target.value)}
+                          onBlur={() => handleBudgetSave(project.id)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleBudgetSave(project.id);
+                            if (e.key === 'Escape') setEditingBudget(null);
+                          }}
+                          className="h-8 w-28 text-sm bg-white"
+                          autoFocus
+                        />
                       </div>
                     ) : (
-                      <span className="text-sm text-gray-400">-</span>
+                      <div className="flex items-center gap-1.5 text-sm">
+                        <DollarSign className="h-4 w-4 text-gray-400 group-hover/budget:text-green-600 flex-shrink-0 transition-colors" />
+                        <span className="font-semibold text-gray-900 group-hover/budget:text-green-600 transition-colors">
+                          {project.budget ? formatCurrency(project.budget) : '-'}
+                        </span>
+                      </div>
                     )}
                   </TableCell>
-                  <TableCell className="py-4">
-                    <div className="flex items-start gap-1.5 text-sm">
-                      <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
-                      <div className="min-w-0">
-                        <div className="text-gray-900">
-                          {project.startDate ? formatDate(project.startDate) : '-'}
-                        </div>
-                        {project.endDate && (
-                          <div className="text-gray-500 text-xs mt-0.5">
-                            bis {formatDate(project.endDate)}
-                          </div>
-                        )}
+                  <TableCell 
+                    className="py-4 group/date cursor-pointer" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (editingDate !== project.id) {
+                        handleDateEdit(project);
+                      }
+                    }}
+                  >
+                    {editingDate === project.id ? (
+                      <div className="flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
+                        <Input
+                          type="date"
+                          value={dateValue.startDate}
+                          onChange={(e) => setDateValue({ ...dateValue, startDate: e.target.value })}
+                          className="h-8 text-xs bg-white"
+                          placeholder="Start"
+                        />
+                        <Input
+                          type="date"
+                          value={dateValue.endDate}
+                          onChange={(e) => setDateValue({ ...dateValue, endDate: e.target.value })}
+                          onBlur={() => handleDateSave(project.id)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleDateSave(project.id);
+                            if (e.key === 'Escape') setEditingDate(null);
+                          }}
+                          className="h-8 text-xs bg-white"
+                          placeholder="Ende"
+                        />
                       </div>
-                    </div>
+                    ) : (
+                      <div className="flex items-start gap-1.5 text-sm">
+                        <Calendar className="h-4 w-4 text-gray-400 group-hover/date:text-purple-600 flex-shrink-0 mt-0.5 transition-colors" />
+                        <div className="min-w-0">
+                          <div className="text-gray-900 group-hover/date:text-purple-600 transition-colors">
+                            {project.startDate ? formatDate(project.startDate) : '-'}
+                          </div>
+                          {project.endDate && (
+                            <div className="text-gray-500 group-hover/date:text-purple-600 text-xs mt-0.5 transition-colors">
+                              bis {formatDate(project.endDate)}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell className="py-4 pr-6" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-center gap-2">
