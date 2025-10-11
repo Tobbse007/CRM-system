@@ -198,21 +198,43 @@ export function ProjectTableModern({
   const getStatusConfig = (status: ProjectStatus) => {
     switch (status) {
       case ProjectStatus.ON_HOLD:
-        return { label: 'Pausiert', variant: 'secondary' as const, color: 'text-red-700 bg-red-50 border-red-300' };
+        return {
+          label: 'Pausiert',
+          color: 'text-red-700 bg-red-50 border-red-300',
+          dotColor: 'bg-red-500',
+        };
       case ProjectStatus.PLANNING:
-        return { label: 'Planung', variant: 'outline' as const, color: 'text-yellow-700 bg-yellow-50 border-yellow-300' };
+        return {
+          label: 'Planung',
+          color: 'text-orange-700 bg-orange-100 border-orange-300',
+          dotColor: 'bg-orange-500',
+        };
       case ProjectStatus.IN_PROGRESS:
-        return { label: 'In Arbeit', variant: 'default' as const, color: 'text-orange-700 bg-orange-100 border-orange-300' };
+        return {
+          label: 'In Arbeit',
+          color: 'text-yellow-700 bg-yellow-50 border-yellow-300',
+          dotColor: 'bg-yellow-500',
+        };
       case ProjectStatus.REVIEW:
-        return { label: 'Review', variant: 'secondary' as const, color: 'text-blue-700 bg-blue-100 border-blue-300' };
+        return {
+          label: 'Review',
+          color: 'text-blue-700 bg-blue-100 border-blue-300',
+          dotColor: 'bg-blue-500',
+        };
       case ProjectStatus.COMPLETED:
-        return { label: 'Abgeschlossen', variant: 'default' as const, color: 'text-green-700 bg-green-100 border-green-300' };
+        return {
+          label: 'Abgeschlossen',
+          color: 'text-green-700 bg-green-100 border-green-300',
+          dotColor: 'bg-green-500',
+        };
       default:
-        return { label: status, variant: 'outline' as const, color: 'text-gray-600 bg-gray-50 border-gray-200' };
+        return {
+          label: status,
+          color: 'text-gray-700 bg-gray-50 border-gray-200',
+          dotColor: 'bg-gray-500',
+        };
     }
-  };
-
-  if (isLoading) {
+  };  if (isLoading) {
     return (
       <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
         <Table>
@@ -343,7 +365,7 @@ export function ProjectTableModern({
                       <DropdownMenuTrigger asChild>
                         <button className="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md">
                           <Badge
-                            variant={statusConfig.variant}
+                            variant="outline"
                             className={`${statusConfig.color} border font-medium cursor-pointer hover:opacity-80 transition-opacity`}
                           >
                             {statusConfig.label}
@@ -368,10 +390,10 @@ export function ProjectTableModern({
                             e.stopPropagation();
                             updateStatusMutation.mutate({ projectId: project.id, status: ProjectStatus.PLANNING });
                           }}
-                          className="cursor-pointer hover:bg-yellow-50 hover:text-yellow-700 focus:bg-yellow-50 focus:text-yellow-700 py-2"
+                          className="cursor-pointer hover:bg-orange-50 hover:text-orange-700 focus:bg-orange-50 focus:text-orange-700 py-2"
                         >
                           <span className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
+                            <span className="w-2 h-2 rounded-full bg-orange-500"></span>
                             Planung
                           </span>
                         </DropdownMenuItem>
@@ -380,10 +402,10 @@ export function ProjectTableModern({
                             e.stopPropagation();
                             updateStatusMutation.mutate({ projectId: project.id, status: ProjectStatus.IN_PROGRESS });
                           }}
-                          className="cursor-pointer hover:bg-orange-50 hover:text-orange-700 focus:bg-orange-50 focus:text-orange-700 py-2"
+                          className="cursor-pointer hover:bg-yellow-50 hover:text-yellow-700 focus:bg-yellow-50 focus:text-yellow-700 py-2"
                         >
                           <span className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                            <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
                             In Arbeit
                           </span>
                         </DropdownMenuItem>
