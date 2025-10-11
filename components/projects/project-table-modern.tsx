@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
@@ -43,6 +43,21 @@ export function ProjectTableModern({
   const [editingDate, setEditingDate] = useState<string | null>(null);
   const [budgetValue, setBudgetValue] = useState<string>('');
   const [dateValue, setDateValue] = useState<{ startDate: string; endDate: string }>({ startDate: '', endDate: '' });
+  const dateEditRef = useRef<HTMLDivElement>(null);
+
+  // Close date editing when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (editingDate && dateEditRef.current && !dateEditRef.current.contains(event.target as Node)) {
+        handleDateSave(editingDate);
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [editingDate, dateValue]);
 
   // Mutation für Status-Update mit Optimistic Update
   const updateStatusMutation = useMutation({
@@ -479,19 +494,11 @@ export function ProjectTableModern({
                     onClick={(e) => e.stopPropagation()}
                   >
                     {editingDate === project.id ? (
-                      <div className="flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
+                      <div ref={dateEditRef} className="flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
                         <Input
                           type="date"
                           value={dateValue.startDate}
                           onChange={(e) => setDateValue({ ...dateValue, startDate: e.target.value })}
-                          onBlur={(e) => {
-                            // Nur speichern wenn Focus wirklich außerhalb ist
-                            setTimeout(() => {
-                              if (!e.relatedTarget || !e.currentTarget.parentElement?.contains(e.relatedTarget as Node)) {
-                                handleDateSave(project.id);
-                              }
-                            }, 100);
-                          }}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') handleDateSave(project.id);
                             if (e.key === 'Escape') {
@@ -506,7 +513,6 @@ export function ProjectTableModern({
                           type="date"
                           value={dateValue.endDate}
                           onChange={(e) => setDateValue({ ...dateValue, endDate: e.target.value })}
-                          onBlur={() => handleDateSave(project.id)}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') handleDateSave(project.id);
                             if (e.key === 'Escape') {
