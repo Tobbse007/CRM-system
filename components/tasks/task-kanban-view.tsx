@@ -16,6 +16,7 @@ interface TaskKanbanViewProps {
   tasks: Task[];
   isLoading?: boolean;
   onEdit: (task: Task) => void;
+  onViewDetails: (task: Task) => void;
 }
 
 type TaskWithProject = Task & {
@@ -53,7 +54,7 @@ const COLUMNS = [
   },
 ];
 
-export function TaskKanbanView({ tasks, isLoading, onEdit }: TaskKanbanViewProps) {
+export function TaskKanbanView({ tasks, isLoading, onEdit, onViewDetails }: TaskKanbanViewProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [localTasks, setLocalTasks] = useState<TaskWithProject[]>(tasks as TaskWithProject[]);
@@ -62,6 +63,43 @@ export function TaskKanbanView({ tasks, isLoading, onEdit }: TaskKanbanViewProps
   useEffect(() => {
     setLocalTasks(tasks as TaskWithProject[]);
   }, [tasks]);
+
+  const handleStatusChange = useCallback(async (taskId: string, newStatus: TaskStatus) => {
+    const task = localTasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    // Optimistically update the UI
+    setLocalTasks((prevTasks) =>
+      prevTasks.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t))
+    );
+
+    try {
+      // Update via API
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update task');
+
+      // Invalidate queries to refetch fresh data
+      await queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
+
+      toast({
+        title: 'Status aktualisiert',
+        description: `Status wurde zu "${COLUMNS.find((c) => c.id === newStatus)?.title}" geändert.`,
+      });
+    } catch (error) {
+      // Revert optimistic update on error
+      setLocalTasks(tasks as TaskWithProject[]);
+      toast({
+        title: 'Fehler',
+        description: 'Status konnte nicht aktualisiert werden.',
+        variant: 'destructive',
+      });
+    }
+  }, [localTasks, tasks, toast, queryClient]);
 
   const onDragEnd = useCallback(async (result: DropResult) => {
     const { source, destination, draggableId } = result;
@@ -185,6 +223,8 @@ export function TaskKanbanView({ tasks, isLoading, onEdit }: TaskKanbanViewProps
                           task={task}
                           index={index}
                           onEdit={onEdit}
+                          onStatusChange={handleStatusChange}
+                          onViewDetails={onViewDetails}
                         />
                       ))
                     )}

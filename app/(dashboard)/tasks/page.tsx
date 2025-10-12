@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTasks } from '@/hooks/use-tasks';
 import { TaskFormDialog } from '@/components/tasks/task-form-dialog';
+import { TaskDetailsDialog } from '@/components/tasks/task-details-dialog';
 import { TaskStats } from '@/components/tasks/task-stats';
 import { TaskKanbanView } from '@/components/tasks/task-kanban-view';
 import { TaskListView } from '@/components/tasks/task-list-view';
@@ -17,10 +18,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Search, Filter, X, CheckSquare, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Search, Filter, X, CheckSquare, ChevronDown, ChevronUp, ArrowUpDown, ArrowDown, ArrowUp } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import type { Task } from '@/types';
 
 type TaskViewMode = 'list' | 'kanban';
+type SortOrder = 'high-to-low' | 'low-to-high' | 'none';
 
 const statusOptions = [
   { value: 'all', label: 'Alle Status' },
@@ -45,9 +48,11 @@ export default function TasksPage() {
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [clientFilter, setClientFilter] = useState<string | null>(clientIdFromUrl);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | undefined>();
   const [viewMode, setViewMode] = useState<TaskViewMode>('kanban');
   const [showFilters, setShowFilters] = useState(false);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('none');
 
   const { data: tasks = [], isLoading } = useTasks();
 
@@ -72,20 +77,34 @@ export default function TasksPage() {
     }
   }, [clientIdFromUrl]);
 
-  const filteredTasks = tasks.filter((task) => {
-    const matchesSearch =
-      search === '' ||
-      task.title.toLowerCase().includes(search.toLowerCase()) ||
-      (task.description?.toLowerCase().includes(search.toLowerCase()) ?? false);
+  const filteredTasks = useMemo(() => {
+    let filtered = tasks.filter((task) => {
+      const matchesSearch =
+        search === '' ||
+        task.title.toLowerCase().includes(search.toLowerCase()) ||
+        (task.description?.toLowerCase().includes(search.toLowerCase()) ?? false);
 
-    const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
-    const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
-    
-    // Filter by client if set
-    const matchesClient = !clientFilter || (task.project?.client?.id === clientFilter);
+      const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
+      const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
+      
+      // Filter by client if set
+      const matchesClient = !clientFilter || (task.project?.client?.id === clientFilter);
 
-    return matchesSearch && matchesStatus && matchesPriority && matchesClient;
-  });
+      return matchesSearch && matchesStatus && matchesPriority && matchesClient;
+    });
+
+    // Sort by priority
+    if (sortOrder !== 'none') {
+      const priorityOrder = { HIGH: 3, MEDIUM: 2, LOW: 1 };
+      filtered = [...filtered].sort((a, b) => {
+        const aVal = priorityOrder[a.priority] || 0;
+        const bVal = priorityOrder[b.priority] || 0;
+        return sortOrder === 'high-to-low' ? bVal - aVal : aVal - bVal;
+      });
+    }
+
+    return filtered;
+  }, [tasks, search, statusFilter, priorityFilter, clientFilter, sortOrder]);
 
   const activeFiltersCount = 
     (search ? 1 : 0) + 
@@ -98,8 +117,18 @@ export default function TasksPage() {
     setDialogOpen(true);
   };
 
+  const handleViewDetails = (task: Task) => {
+    setSelectedTask(task);
+    setDetailsDialogOpen(true);
+  };
+
   const handleDialogClose = () => {
     setDialogOpen(false);
+    setSelectedTask(undefined);
+  };
+
+  const handleDetailsDialogClose = () => {
+    setDetailsDialogOpen(false);
     setSelectedTask(undefined);
   };
 
@@ -113,6 +142,7 @@ export default function TasksPage() {
     setStatusFilter('all');
     setPriorityFilter('all');
     setClientFilter(null);
+    setSortOrder('none');
   };
   
   // Get client name for filter badge
@@ -127,6 +157,15 @@ export default function TasksPage() {
         onOpenChange={handleDialogClose}
         task={selectedTask}
       />
+
+      {selectedTask && (
+        <TaskDetailsDialog
+          open={detailsDialogOpen}
+          onOpenChange={handleDetailsDialogClose}
+          task={selectedTask}
+          onEdit={handleEdit}
+        />
+      )}
 
       {/* Header */}
       <div className="flex items-center justify-between mb-2 min-h-[72px] w-full">
@@ -223,11 +262,11 @@ export default function TasksPage() {
       >
         <div className="shadow-[0_2px_12px_rgb(0,0,0,0.04)] border border-gray-200 bg-white overflow-hidden rounded-2xl p-5">
           <div className="flex items-center gap-3 flex-wrap">
-            {/* Such-Feld */}
-            <div className="relative flex-1 min-w-[300px]">
+            {/* Such-Feld - kompakt mit Icon */}
+            <div className="relative w-[240px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Aufgaben durchsuchen..."
+                placeholder="Suchen..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9 h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
@@ -269,6 +308,36 @@ export default function TasksPage() {
                 ))}
               </SelectContent>
             </Select>
+
+            {/* Sortierung Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (sortOrder === 'none') setSortOrder('high-to-low');
+                else if (sortOrder === 'high-to-low') setSortOrder('low-to-high');
+                else setSortOrder('none');
+              }}
+              className={cn(
+                'h-10 px-3 gap-2',
+                sortOrder !== 'none' && 'border-blue-500 text-blue-600 bg-blue-50'
+              )}
+            >
+              {sortOrder === 'high-to-low' ? (
+                <ArrowDown className="h-4 w-4" />
+              ) : sortOrder === 'low-to-high' ? (
+                <ArrowUp className="h-4 w-4" />
+              ) : (
+                <ArrowUpDown className="h-4 w-4" />
+              )}
+              <span className="text-sm">
+                {sortOrder === 'high-to-low' 
+                  ? 'Hoch → Niedrig' 
+                  : sortOrder === 'low-to-high' 
+                    ? 'Niedrig → Hoch' 
+                    : 'Sortieren'}
+              </span>
+            </Button>
           </div>
         </div>
       </div>
@@ -283,6 +352,7 @@ export default function TasksPage() {
             tasks={filteredTasks}
             isLoading={isLoading}
             onEdit={handleEdit}
+            onViewDetails={handleViewDetails}
           />
         ) : (
           <TaskListView
