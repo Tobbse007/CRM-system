@@ -6,7 +6,7 @@ import ReactDOM from 'react-dom';
 import { KanbanColumn } from './kanban-column';
 import { KanbanCard } from './kanban-card';
 import { Circle, Clock, CheckCircle2, GripVertical } from 'lucide-react';
-import { TaskStatus } from '@prisma/client';
+import { TaskStatus, TaskPriority } from '@prisma/client';
 import type { Task } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
@@ -96,6 +96,44 @@ export function TaskKanbanView({ tasks, isLoading, onEdit, onViewDetails }: Task
       toast({
         title: 'Fehler',
         description: 'Status konnte nicht aktualisiert werden.',
+        variant: 'destructive',
+      });
+    }
+  }, [localTasks, tasks, toast, queryClient]);
+
+  const handlePriorityChange = useCallback(async (taskId: string, newPriority: TaskPriority) => {
+    const task = localTasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    // Optimistically update the UI
+    setLocalTasks((prevTasks) =>
+      prevTasks.map((t) => (t.id === taskId ? { ...t, priority: newPriority } : t))
+    );
+
+    try {
+      // Update via API
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priority: newPriority }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update task');
+
+      // Invalidate queries to refetch fresh data
+      await queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
+
+      const priorityLabels: Record<TaskPriority, string> = { HIGH: 'Hoch', MEDIUM: 'Mittel', LOW: 'Niedrig' };
+      toast({
+        title: 'Priorität aktualisiert',
+        description: `Priorität wurde zu "${priorityLabels[newPriority]}" geändert.`,
+      });
+    } catch (error) {
+      // Revert optimistic update on error
+      setLocalTasks(tasks as TaskWithProject[]);
+      toast({
+        title: 'Fehler',
+        description: 'Priorität konnte nicht aktualisiert werden.',
         variant: 'destructive',
       });
     }
@@ -241,7 +279,7 @@ export function TaskKanbanView({ tasks, isLoading, onEdit, onViewDetails }: Task
                             task={task}
                             index={index}
                             onEdit={onEdit}
-                            onStatusChange={handleStatusChange}
+                            onPriorityChange={handlePriorityChange}
                             onViewDetails={onViewDetails}
                           />
                         </div>

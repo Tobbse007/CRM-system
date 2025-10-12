@@ -32,11 +32,11 @@ interface KanbanCardProps {
   };
   index: number;
   onEdit: (task: Task) => void;
-  onStatusChange: (taskId: string, newStatus: TaskStatus) => void;
+  onPriorityChange: (taskId: string, newPriority: TaskPriority) => void;
   onViewDetails: (task: Task) => void;
 }
 
-export function KanbanCard({ task, index, onEdit, onStatusChange, onViewDetails }: KanbanCardProps) {
+export function KanbanCard({ task, index, onEdit, onPriorityChange, onViewDetails }: KanbanCardProps) {
   const getPriorityConfig = (priority: TaskPriority) => {
     switch (priority) {
       case 'HIGH':
@@ -62,21 +62,7 @@ export function KanbanCard({ task, index, onEdit, onStatusChange, onViewDetails 
     }
   };
 
-  const getStatusConfig = (status: TaskStatus) => {
-    switch (status) {
-      case 'TODO':
-        return { label: 'Offen', color: 'text-gray-700' };
-      case 'IN_PROGRESS':
-        return { label: 'In Arbeit', color: 'text-blue-600' };
-      case 'DONE':
-        return { label: 'Erledigt', color: 'text-green-600' };
-      default:
-        return { label: status, color: 'text-gray-700' };
-    }
-  };
-
   const priorityConfig = getPriorityConfig(task.priority);
-  const statusConfig = getStatusConfig(task.status);
   const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'DONE';
   const isDueSoonTask = task.dueDate && isDueSoon(task.dueDate) && task.status !== 'DONE';
 
@@ -117,26 +103,23 @@ export function KanbanCard({ task, index, onEdit, onStatusChange, onViewDetails 
                 )}
               </div>
 
-              {/* Priorität & Status in einer Zeile */}
-              <div className="flex items-center gap-2 mb-3">
-                <span className={cn('inline-flex items-center gap-1 px-2.5 py-1 rounded text-sm font-medium text-white', priorityConfig.color)}>
-                  {priorityConfig.label}
-                </span>
+              {/* Priorität - klickbar zum Ändern */}
+              <div className="mb-3">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    const statuses: TaskStatus[] = ['TODO', 'IN_PROGRESS', 'DONE'];
-                    const currentIndex = statuses.indexOf(task.status);
-                    const nextStatus = statuses[(currentIndex + 1) % statuses.length];
-                    onStatusChange(task.id, nextStatus);
+                    const priorities: TaskPriority[] = ['HIGH', 'MEDIUM', 'LOW'];
+                    const currentIndex = priorities.indexOf(task.priority);
+                    const nextPriority = priorities[(currentIndex + 1) % priorities.length];
+                    onPriorityChange(task.id, nextPriority);
                   }}
                   className={cn(
-                    'inline-flex items-center gap-1 px-2.5 py-1 rounded text-sm font-medium transition-colors pointer-events-auto',
-                    'hover:bg-gray-100 border border-gray-200',
-                    statusConfig.color
+                    'inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-sm font-medium text-white transition-all pointer-events-auto',
+                    'hover:scale-105 hover:shadow-md active:scale-95',
+                    priorityConfig.color
                   )}
                 >
-                  {statusConfig.label}
+                  {priorityConfig.label}
                   <ChevronRight className="h-3.5 w-3.5" />
                 </button>
               </div>
