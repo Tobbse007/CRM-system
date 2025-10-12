@@ -12,6 +12,7 @@ import {
   Clock,
   Eye,
   ChevronRight,
+  GripVertical as GripIcon,
 } from 'lucide-react';
 import { formatDate, isDueSoon } from '@/lib/utils';
 import { cn } from '@/lib/utils';
@@ -97,10 +98,15 @@ export function KanbanCard({ task, index, onEdit, onStatusChange, onViewDetails 
           >
             <div 
               {...provided.dragHandleProps}
-              className={cn('p-4 cursor-grab active:cursor-grabbing', snapshot.isDragging && 'pointer-events-none select-none')}
+              className={cn('p-4 cursor-grab active:cursor-grabbing relative', snapshot.isDragging && 'pointer-events-none select-none')}
             >
+              {/* Grip Icon oben rechts */}
+              <div className="absolute top-3 right-3 text-gray-300 group-hover:text-gray-400 transition-colors">
+                <GripVertical className="h-5 w-5" />
+              </div>
+
               {/* Titel & Beschreibung */}
-              <div className="mb-3">
+              <div className="mb-3 pr-8">
                 <h3 className="font-semibold text-base text-gray-900 mb-1.5 line-clamp-2">
                   {task.title}
                 </h3>

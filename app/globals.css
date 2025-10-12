@@ -283,3 +283,31 @@
   left: 0 !important;
   top: 0 !important;
 }
+
+/* Placeholder (Drop-Indikator) für bessere Visualisierung */
+[data-rfd-placeholder-context-id] {
+  background: linear-gradient(to bottom, #dbeafe, #bfdbfe) !important;
+  border: 2px dashed #3b82f6 !important;
+  border-radius: 12px !important;
+  opacity: 1 !important;
+  height: 120px !important;
+  margin: 12px 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Animation für Placeholder */
+@keyframes pulse-placeholder {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+[data-rfd-placeholder-context-id]::before {
+  content: "Drop hier" !important;
+  color: #3b82f6 !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  animation: pulse-placeholder 1.5s ease-in-out infinite !important;
+}

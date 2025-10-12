@@ -236,14 +236,15 @@ export function TaskKanbanView({ tasks, isLoading, onEdit, onViewDetails }: Task
                       </div>
                     ) : (
                       columnTasks.map((task, index) => (
-                        <KanbanCard
-                          key={task.id}
-                          task={task}
-                          index={index}
-                          onEdit={onEdit}
-                          onStatusChange={handleStatusChange}
-                          onViewDetails={onViewDetails}
-                        />
+                        <div key={task.id}>
+                          <KanbanCard
+                            task={task}
+                            index={index}
+                            onEdit={onEdit}
+                            onStatusChange={handleStatusChange}
+                            onViewDetails={onViewDetails}
+                          />
+                        </div>
                       ))
                     )}
                     {provided.placeholder}
