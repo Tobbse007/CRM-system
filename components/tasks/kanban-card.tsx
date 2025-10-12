@@ -137,18 +137,24 @@ export function KanbanCard({ task, index, onEdit, onPriorityChange, onViewDetail
                 )}
               </div>
 
-              {/* Projekt & Kunde - kompakt */}
+              {/* Projekt & Kunde - anklickbar */}
               {task.project && (
-                <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                <div className="flex items-center gap-2 text-sm mb-4">
                   <Link
-                    href={`/projects/${task.project.id}`}
-                    className="hover:text-blue-600 transition-colors truncate pointer-events-auto"
+                    href={`/projects?project=${task.project.id}`}
+                    className="text-blue-600 hover:text-blue-700 font-medium transition-colors truncate pointer-events-auto"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {task.project.name}
                   </Link>
-                  <span>•</span>
-                  <span className="truncate">{task.project.client.name}</span>
+                  <span className="text-gray-400">•</span>
+                  <Link
+                    href={`/clients/${task.project.client.id}`}
+                    className="text-gray-600 hover:text-blue-600 transition-colors truncate pointer-events-auto"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {task.project.client.name}
+                  </Link>
                 </div>
               )}
 
@@ -223,8 +229,8 @@ export function KanbanCard({ task, index, onEdit, onPriorityChange, onViewDetail
                 </Select>
               </div>
 
-              {/* Action Buttons - nur Schrift färbt sich */}
-              <div className="flex items-center gap-2 pt-4 border-t border-gray-100">
+              {/* Action Buttons - weniger Abstand oben/unten */}
+              <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
                 <Button
                   size="sm"
                   variant="ghost"

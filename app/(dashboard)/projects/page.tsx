@@ -39,6 +39,7 @@ export default function ProjectsPage() {
   const [selectedClients, setSelectedClients] = useState<string[]>(
     searchParams.get('client')?.split(',').filter(Boolean) || []
   );
+  const projectIdFromUrl = searchParams.get('project');
   const [sortBy, setSortBy] = useState<string>('newest');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({
@@ -67,6 +68,11 @@ export default function ProjectsPage() {
     if (!projects) return [];
 
     let filtered = projects.filter((project) => {
+      // Projekt-ID Filter (aus URL)
+      if (projectIdFromUrl && project.id !== projectIdFromUrl) {
+        return false;
+      }
+
       // Search filter - jetzt auch nach Kunden-Namen
       if (search) {
         const searchLower = search.toLowerCase();
@@ -117,7 +123,7 @@ export default function ProjectsPage() {
     });
 
     return filtered;
-  }, [projects, dateRange, sortBy, sortOrder]);
+  }, [projects, dateRange, sortBy, sortOrder, projectIdFromUrl]);
 
   // Count active filters
   const activeFiltersCount =
@@ -125,7 +131,8 @@ export default function ProjectsPage() {
     selectedStatuses.length +
     selectedClients.length +
     (dateRange.from || dateRange.to ? 1 : 0) +
-    (sortBy !== 'newest' || sortOrder !== 'desc' ? 1 : 0);
+    (sortBy !== 'newest' || sortOrder !== 'desc' ? 1 : 0) +
+    (projectIdFromUrl ? 1 : 0);
 
   // Update URL with filters
   const updateURL = () => {
