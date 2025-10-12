@@ -123,7 +123,7 @@ export function TaskKanbanView({ tasks, isLoading, onEdit, onViewDetails }: Task
       // Invalidate queries to refetch fresh data
       await queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
 
-      const priorityLabels: Record<TaskPriority, string> = { HIGH: 'Hoch', MEDIUM: 'Mittel', LOW: 'Niedrig' };
+      const priorityLabels: Record<TaskPriority, string> = { HIGH: 'Schwer', MEDIUM: 'Mittel', LOW: 'Einfach' };
       toast({
         title: 'Priorität aktualisiert',
         description: `Priorität wurde zu "${priorityLabels[newPriority]}" geändert.`,

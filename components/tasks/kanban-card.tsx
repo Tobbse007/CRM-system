@@ -4,6 +4,13 @@ import { Draggable } from '@hello-pangea/dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Calendar,
   Edit,
   GripVertical,
@@ -42,7 +49,7 @@ export function KanbanCard({ task, index, onEdit, onPriorityChange, onViewDetail
       case 'HIGH':
         return {
           color: 'bg-red-500',
-          label: 'Hoch',
+          label: 'Schwer',
         };
       case 'MEDIUM':
         return {
@@ -52,7 +59,7 @@ export function KanbanCard({ task, index, onEdit, onPriorityChange, onViewDetail
       case 'LOW':
         return {
           color: 'bg-blue-500',
-          label: 'Niedrig',
+          label: 'Einfach',
         };
       default:
         return {
@@ -103,27 +110,6 @@ export function KanbanCard({ task, index, onEdit, onPriorityChange, onViewDetail
                 )}
               </div>
 
-              {/* Priorität - klickbar zum Ändern */}
-              <div className="mb-3">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const priorities: TaskPriority[] = ['HIGH', 'MEDIUM', 'LOW'];
-                    const currentIndex = priorities.indexOf(task.priority);
-                    const nextPriority = priorities[(currentIndex + 1) % priorities.length];
-                    onPriorityChange(task.id, nextPriority);
-                  }}
-                  className={cn(
-                    'inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-sm font-medium text-white transition-all pointer-events-auto',
-                    'hover:scale-105 hover:shadow-md active:scale-95',
-                    priorityConfig.color
-                  )}
-                >
-                  {priorityConfig.label}
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </button>
-              </div>
-
               {/* Projekt & Kunde - kompakt */}
               {task.project && (
                 <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-3">
@@ -139,26 +125,77 @@ export function KanbanCard({ task, index, onEdit, onPriorityChange, onViewDetail
                 </div>
               )}
 
-              {/* Due Date - kompakter */}
-              {task.dueDate && (
-                <div
-                  className={cn(
-                    'flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium mb-3',
-                    isOverdue && 'bg-red-50 text-red-700',
-                    isDueSoonTask && !isOverdue && 'bg-orange-50 text-orange-700',
-                    !isOverdue && !isDueSoonTask && 'bg-gray-50 text-gray-600'
-                  )}
+              {/* Due Date & Priorität nebeneinander */}
+              <div className="flex items-center gap-2 mb-3">
+                {/* Due Date */}
+                {task.dueDate && (
+                  <div
+                    className={cn(
+                      'flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium flex-1',
+                      isOverdue && 'bg-red-50 text-red-700',
+                      isDueSoonTask && !isOverdue && 'bg-orange-50 text-orange-700',
+                      !isOverdue && !isDueSoonTask && 'bg-gray-50 text-gray-600'
+                    )}
+                  >
+                    {isOverdue ? (
+                      <AlertCircle className="h-3.5 w-3.5" />
+                    ) : isDueSoonTask ? (
+                      <Clock className="h-3.5 w-3.5" />
+                    ) : (
+                      <Calendar className="h-3.5 w-3.5" />
+                    )}
+                    <span>{formatDate(task.dueDate)}</span>
+                  </div>
+                )}
+                
+                {/* Priorität Dropdown */}
+                <Select
+                  value={task.priority}
+                  onValueChange={(value) => {
+                    onPriorityChange(task.id, value as TaskPriority);
+                  }}
                 >
-                  {isOverdue ? (
-                    <AlertCircle className="h-3.5 w-3.5" />
-                  ) : isDueSoonTask ? (
-                    <Clock className="h-3.5 w-3.5" />
-                  ) : (
-                    <Calendar className="h-3.5 w-3.5" />
-                  )}
-                  <span>{formatDate(task.dueDate)}</span>
-                </div>
-              )}
+                  <SelectTrigger
+                    className={cn(
+                      'h-auto px-2.5 py-1.5 text-xs font-medium text-white border-0 pointer-events-auto',
+                      'hover:opacity-90 transition-opacity w-[100px]',
+                      priorityConfig.color
+                    )}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white pointer-events-auto">
+                    <SelectItem 
+                      value="HIGH" 
+                      className="cursor-pointer hover:bg-red-50 focus:bg-red-50"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="w-3 h-3 rounded-full bg-red-500"></span>
+                        Schwer
+                      </span>
+                    </SelectItem>
+                    <SelectItem 
+                      value="MEDIUM" 
+                      className="cursor-pointer hover:bg-orange-50 focus:bg-orange-50"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="w-3 h-3 rounded-full bg-orange-500"></span>
+                        Mittel
+                      </span>
+                    </SelectItem>
+                    <SelectItem 
+                      value="LOW" 
+                      className="cursor-pointer hover:bg-blue-50 focus:bg-blue-50"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="w-3 h-3 rounded-full bg-blue-500"></span>
+                        Einfach
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
               {/* Action Buttons - kompakt */}
               <div className="flex items-center gap-1.5 pt-3 border-t border-gray-100">

@@ -34,9 +34,9 @@ const statusOptions = [
 
 const priorityOptions = [
   { value: 'all', label: 'Alle Prioritäten' },
-  { value: 'LOW', label: 'Niedrig' },
+  { value: 'LOW', label: 'Einfach' },
   { value: 'MEDIUM', label: 'Mittel' },
-  { value: 'HIGH', label: 'Hoch' },
+  { value: 'HIGH', label: 'Schwer' },
 ];
 
 export default function TasksPage() {
@@ -332,9 +332,9 @@ export default function TasksPage() {
               )}
               <span className="text-sm">
                 {sortOrder === 'high-to-low' 
-                  ? 'Hoch → Niedrig' 
+                  ? 'Schwer → Einfach' 
                   : sortOrder === 'low-to-high' 
-                    ? 'Niedrig → Hoch' 
+                    ? 'Einfach → Schwer' 
                     : 'Sortieren'}
               </span>
             </Button>

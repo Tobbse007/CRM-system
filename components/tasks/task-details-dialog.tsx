@@ -51,7 +51,7 @@ export function TaskDetailsDialog({
       case 'HIGH':
         return {
           color: 'bg-red-500',
-          label: 'Hoch',
+          label: 'Schwer',
           icon: '🔴',
         };
       case 'MEDIUM':
@@ -63,7 +63,7 @@ export function TaskDetailsDialog({
       case 'LOW':
         return {
           color: 'bg-blue-500',
-          label: 'Niedrig',
+          label: 'Einfach',
           icon: '🔵',
         };
       default:
