@@ -111,86 +111,58 @@ async function main() {
 
   console.log('✅ Created 5 projects');
 
-  // Create Tasks
+  // Create Tasks - Viele Beispiel-Aufgaben für Kanban-Board
   await prisma.task.createMany({
     data: [
-      // Project 1 Tasks
+      // === TODO Spalte - 7 Aufgaben ===
       {
-        title: 'Wireframes erstellen',
-        description: 'Wireframes für alle Hauptseiten',
+        title: 'API Dokumentation erstellen',
+        description: 'Swagger/OpenAPI Dokumentation für alle Endpoints',
         projectId: project1.id,
-        status: 'DONE',
+        status: 'TODO',
         priority: 'HIGH',
-        dueDate: new Date('2025-01-20'),
+        dueDate: new Date('2025-10-15'),
       },
       {
-        title: 'Design-System aufbauen',
-        description: 'Farben, Typografie, Komponenten definieren',
-        projectId: project1.id,
-        status: 'IN_PROGRESS',
-        priority: 'HIGH',
-        dueDate: new Date('2025-10-12'),
-      },
-      {
-        title: 'Content Migration',
-        description: 'Alte Inhalte ins neue CMS übertragen',
+        title: 'Responsive Testing durchführen',
+        description: 'Tests auf verschiedenen Geräten und Browsern',
         projectId: project1.id,
         status: 'TODO',
         priority: 'MEDIUM',
-        dueDate: new Date('2025-10-15'),
+        dueDate: new Date('2025-10-18'),
       },
-      // Project 2 Tasks
+      {
+        title: 'SEO Optimierung',
+        description: 'Meta-Tags, strukturierte Daten, Performance',
+        projectId: project1.id,
+        status: 'TODO',
+        priority: 'LOW',
+        dueDate: new Date('2025-10-25'),
+      },
       {
         title: 'Shopify Theme auswählen',
         description: 'Passendes Theme evaluieren und kaufen',
         projectId: project2.id,
         status: 'TODO',
         priority: 'HIGH',
-        dueDate: new Date('2025-02-05'),
+        dueDate: new Date('2025-10-20'),
       },
       {
         title: 'Produktkatalog vorbereiten',
-        description: 'Alle Produktdaten strukturieren',
+        description: 'Alle Produktdaten strukturieren und kategorisieren',
         projectId: project2.id,
         status: 'TODO',
         priority: 'MEDIUM',
-        dueDate: new Date('2025-02-10'),
-      },
-      // Project 3 Tasks
-      {
-        title: 'Logo-Konzepte präsentieren',
-        description: '3 verschiedene Logo-Varianten zeigen',
-        projectId: project3.id,
-        status: 'DONE',
-        priority: 'HIGH',
-        dueDate: new Date('2024-12-15'),
+        dueDate: new Date('2025-10-22'),
       },
       {
-        title: 'Finales Logo ausarbeiten',
-        description: 'Gewähltes Konzept in allen Formaten',
-        projectId: project3.id,
-        status: 'IN_PROGRESS',
-        priority: 'HIGH',
-        dueDate: new Date('2025-10-10'),
-      },
-      // Project 4 Tasks
-      {
-        title: 'Content-Plan Februar',
-        description: '15 Posts für Instagram & LinkedIn',
-        projectId: project4.id,
-        status: 'IN_PROGRESS',
-        priority: 'MEDIUM',
-        dueDate: new Date('2025-10-14'),
-      },
-      {
-        title: 'Fotoshooting organisieren',
-        description: 'Termin mit Fotografen vereinbaren',
-        projectId: project4.id,
+        title: 'Zahlungsanbieter einrichten',
+        description: 'PayPal, Stripe und Klarna integrieren',
+        projectId: project2.id,
         status: 'TODO',
-        priority: 'LOW',
-        dueDate: new Date('2025-10-20'),
+        priority: 'HIGH',
+        dueDate: new Date('2025-10-16'),
       },
-      // Project 5 Tasks
       {
         title: 'Tech-Stack finalisieren',
         description: 'Entscheidung über Framework und Datenbank',
@@ -199,10 +171,118 @@ async function main() {
         priority: 'HIGH',
         dueDate: new Date('2025-10-18'),
       },
+
+      // === IN_PROGRESS Spalte - 6 Aufgaben ===
+      {
+        title: 'Design-System aufbauen',
+        description: 'Farben, Typografie, Komponenten definieren',
+        projectId: project1.id,
+        status: 'IN_PROGRESS',
+        priority: 'HIGH',
+        dueDate: new Date('2025-10-14'),
+      },
+      {
+        title: 'Content Migration',
+        description: 'Alte Inhalte ins neue CMS übertragen',
+        projectId: project1.id,
+        status: 'IN_PROGRESS',
+        priority: 'MEDIUM',
+        dueDate: new Date('2025-10-16'),
+      },
+      {
+        title: 'Finales Logo ausarbeiten',
+        description: 'Gewähltes Konzept in allen Formaten vektorisieren',
+        projectId: project3.id,
+        status: 'IN_PROGRESS',
+        priority: 'HIGH',
+        dueDate: new Date('2025-10-10'),
+      },
+      {
+        title: 'Geschäftsausstattung designen',
+        description: 'Visitenkarten, Briefpapier, E-Mail-Signatur',
+        projectId: project3.id,
+        status: 'IN_PROGRESS',
+        priority: 'MEDIUM',
+        dueDate: new Date('2025-10-19'),
+      },
+      {
+        title: 'Content-Plan Oktober',
+        description: '20 Posts für Instagram & LinkedIn erstellen',
+        projectId: project4.id,
+        status: 'IN_PROGRESS',
+        priority: 'MEDIUM',
+        dueDate: new Date('2025-10-14'),
+      },
+      {
+        title: 'Analytics einrichten',
+        description: 'Google Analytics und Tag Manager konfigurieren',
+        projectId: project4.id,
+        status: 'IN_PROGRESS',
+        priority: 'LOW',
+        dueDate: new Date('2025-10-20'),
+      },
+
+      // === DONE Spalte - 7 Aufgaben ===
+      {
+        title: 'Wireframes erstellen',
+        description: 'Wireframes für alle Hauptseiten fertiggestellt',
+        projectId: project1.id,
+        status: 'DONE',
+        priority: 'HIGH',
+        dueDate: new Date('2025-09-20'),
+      },
+      {
+        title: 'Erstes Design Review',
+        description: 'Feedback vom Kunden eingeholt und dokumentiert',
+        projectId: project1.id,
+        status: 'DONE',
+        priority: 'MEDIUM',
+        dueDate: new Date('2025-09-25'),
+      },
+      {
+        title: 'Farbpalette definieren',
+        description: 'Primär- und Sekundärfarben mit Kunde abgestimmt',
+        projectId: project1.id,
+        status: 'DONE',
+        priority: 'HIGH',
+        dueDate: new Date('2025-09-28'),
+      },
+      {
+        title: 'Logo-Konzepte präsentieren',
+        description: '3 verschiedene Logo-Varianten präsentiert',
+        projectId: project3.id,
+        status: 'DONE',
+        priority: 'HIGH',
+        dueDate: new Date('2025-09-15'),
+      },
+      {
+        title: 'Brand Guidelines Draft',
+        description: 'Erste Version der Markenrichtlinien erstellt',
+        projectId: project3.id,
+        status: 'DONE',
+        priority: 'MEDIUM',
+        dueDate: new Date('2025-09-22'),
+      },
+      {
+        title: 'Social Media Accounts einrichten',
+        description: 'Instagram, LinkedIn und Facebook Profile erstellt',
+        projectId: project4.id,
+        status: 'DONE',
+        priority: 'HIGH',
+        dueDate: new Date('2025-09-10'),
+      },
+      {
+        title: 'Content-Kalender erstellen',
+        description: 'Redaktionsplan für Q4 2025 erstellt',
+        projectId: project4.id,
+        status: 'DONE',
+        priority: 'MEDIUM',
+        dueDate: new Date('2025-09-18'),
+      },
     ],
   });
 
-  console.log('✅ Created 10 tasks');
+  console.log('✅ Created 20 tasks across all statuses');
 
   // Create Notes
   await prisma.note.createMany({

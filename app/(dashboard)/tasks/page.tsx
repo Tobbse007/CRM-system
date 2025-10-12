@@ -46,10 +46,24 @@ export default function TasksPage() {
   const [clientFilter, setClientFilter] = useState<string | null>(clientIdFromUrl);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | undefined>();
-  const [viewMode, setViewMode] = useState<TaskViewMode>('list');
+  const [viewMode, setViewMode] = useState<TaskViewMode>('kanban');
   const [showFilters, setShowFilters] = useState(false);
 
   const { data: tasks = [], isLoading } = useTasks();
+
+  // Load view preference from localStorage
+  useEffect(() => {
+    const savedView = localStorage.getItem('tasks-view') as TaskViewMode;
+    if (savedView) {
+      setViewMode(savedView);
+    }
+  }, []);
+
+  // Save view preference to localStorage
+  const handleViewChange = (newView: TaskViewMode) => {
+    setViewMode(newView);
+    localStorage.setItem('tasks-view', newView);
+  };
 
   // Update client filter when URL changes
   useEffect(() => {
@@ -126,7 +140,7 @@ export default function TasksPage() {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <TaskViewToggle view={viewMode} onViewChange={setViewMode} />
+          <TaskViewToggle view={viewMode} onViewChange={handleViewChange} />
           <Button
             onClick={handleAddNew}
             variant="ghost"
@@ -208,8 +222,9 @@ export default function TasksPage() {
         `}
       >
         <div className="shadow-[0_2px_12px_rgb(0,0,0,0.04)] border border-gray-200 bg-white overflow-hidden rounded-2xl p-5">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="relative">
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Such-Feld */}
+            <div className="relative flex-1 min-w-[300px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Aufgaben durchsuchen..."
@@ -219,8 +234,9 @@ export default function TasksPage() {
               />
             </div>
 
+            {/* Status Filter */}
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="h-10 border-gray-200">
+              <SelectTrigger className="w-[160px] h-10 border-gray-200">
                 <SelectValue placeholder="Status filtern" />
               </SelectTrigger>
               <SelectContent className="bg-white">
@@ -236,8 +252,9 @@ export default function TasksPage() {
               </SelectContent>
             </Select>
 
+            {/* Priorität Filter */}
             <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-              <SelectTrigger className="h-10 border-gray-200">
+              <SelectTrigger className="w-[160px] h-10 border-gray-200">
                 <SelectValue placeholder="Priorität filtern" />
               </SelectTrigger>
               <SelectContent className="bg-white">
@@ -261,14 +278,14 @@ export default function TasksPage() {
         key={viewMode} 
         className="animate-view-transition w-full"
       >
-        {viewMode === 'list' ? (
-          <TaskListView
+        {viewMode === 'kanban' ? (
+          <TaskKanbanView
             tasks={filteredTasks}
             isLoading={isLoading}
             onEdit={handleEdit}
           />
         ) : (
-          <TaskKanbanView
+          <TaskListView
             tasks={filteredTasks}
             isLoading={isLoading}
             onEdit={handleEdit}

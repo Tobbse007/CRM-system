@@ -258,3 +258,28 @@
   background: rgba(59, 130, 246, 0.2);
   color: rgb(17 24 39);
 }
+
+/* hello-pangea/dnd custom styles for better drag & drop */
+[data-rfd-drag-handle-context-id] {
+  cursor: grab !important;
+}
+
+[data-rfd-drag-handle-context-id]:active {
+  cursor: grabbing !important;
+}
+
+[data-rfd-draggable-context-id] {
+  user-select: none;
+}
+
+[data-rfd-draggable-id] {
+  will-change: transform;
+}
+
+/* When dragging (position: fixed), remove any offset positioning */
+[data-rfd-draggable-id][style*="position: fixed"] {
+  z-index: 9999 !important;
+  pointer-events: none;
+  left: 0 !important;
+  top: 0 !important;
+}

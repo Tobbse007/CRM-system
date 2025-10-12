@@ -2,6 +2,8 @@
 
 import { CheckSquare, Circle, Clock, CheckCircle2 } from 'lucide-react';
 import type { Task } from '@/types';
+import { useCounterAnimation } from '@/hooks/use-counter-animation';
+import { useEffect, useState } from 'react';
 
 interface TaskStatsProps {
   tasks: Task[];
@@ -9,6 +11,12 @@ interface TaskStatsProps {
 }
 
 export function TaskStats({ tasks, isLoading }: TaskStatsProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Calculate statistics
   const totalTasks = tasks.length;
   const todoTasks = tasks.filter((t) => t.status === 'TODO').length;
@@ -20,11 +28,18 @@ export function TaskStats({ tasks, isLoading }: TaskStatsProps) {
     ? Math.round((doneTasks / totalTasks) * 100) 
     : 0;
 
+  // Counter animations
+  const animatedTotal = useCounterAnimation(mounted ? totalTasks : 0, 1200);
+  const animatedTodo = useCounterAnimation(mounted ? todoTasks : 0, 1400);
+  const animatedInProgress = useCounterAnimation(mounted ? inProgressTasks : 0, 1600);
+  const animatedDone = useCounterAnimation(mounted ? doneTasks : 0, 1800);
+
   const stats = [
     {
       id: 'total',
       label: 'Gesamt Aufgaben',
-      value: totalTasks,
+      value: animatedTotal,
+      suffix: '',
       icon: CheckSquare,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
@@ -32,7 +47,8 @@ export function TaskStats({ tasks, isLoading }: TaskStatsProps) {
     {
       id: 'todo',
       label: 'Offen',
-      value: todoTasks,
+      value: animatedTodo,
+      suffix: '',
       icon: Circle,
       color: 'text-gray-600',
       bgColor: 'bg-gray-50',
@@ -40,7 +56,8 @@ export function TaskStats({ tasks, isLoading }: TaskStatsProps) {
     {
       id: 'in_progress',
       label: 'In Arbeit',
-      value: inProgressTasks,
+      value: animatedInProgress,
+      suffix: '',
       icon: Clock,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-50',
@@ -48,7 +65,8 @@ export function TaskStats({ tasks, isLoading }: TaskStatsProps) {
     {
       id: 'done',
       label: 'Erledigt',
-      value: doneTasks,
+      value: animatedDone,
+      suffix: '',
       icon: CheckCircle2,
       color: 'text-green-600',
       bgColor: 'bg-green-50',
@@ -58,11 +76,11 @@ export function TaskStats({ tasks, isLoading }: TaskStatsProps) {
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 w-full">
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="stat-card animate-pulse"
+            className="stat-card animate-pulse min-w-0"
           >
             <div className="flex items-center justify-between">
               <div className="space-y-2 flex-1">
@@ -78,21 +96,25 @@ export function TaskStats({ tasks, isLoading }: TaskStatsProps) {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {stats.map((stat) => {
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 w-full">
+      {stats.map((stat, index) => {
         const Icon = stat.icon;
         return (
           <div
             key={stat.id}
-            className="stat-card hover-lift"
+            className="stat-card hover-lift opacity-0 animate-fade-in-up min-w-0"
+            style={{ 
+              animationDelay: `${index * 100}ms`,
+              animationFillMode: 'forwards'
+            }}
           >
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-gray-600">
+            <div className="flex items-center justify-between w-full">
+              <div className="space-y-1 flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-600 whitespace-nowrap">
                   {stat.label}
                 </p>
-                <p className="text-3xl font-semibold tracking-tight text-gray-900">
-                  {stat.value}
+                <p className="text-3xl font-semibold tracking-tight text-gray-900 whitespace-nowrap">
+                  {stat.value}{stat.suffix}
                 </p>
                 {stat.subtitle && (
                   <p className="text-xs text-gray-500 mt-1">
@@ -100,7 +122,7 @@ export function TaskStats({ tasks, isLoading }: TaskStatsProps) {
                   </p>
                 )}
               </div>
-              <div className={`${stat.bgColor} p-3 rounded-xl`}>
+              <div className={`${stat.bgColor} p-3 rounded-xl flex-shrink-0 w-[52px] h-[52px] flex items-center justify-center`}>
                 <Icon className={`h-6 w-6 ${stat.color}`} />
               </div>
             </div>

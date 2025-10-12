@@ -1,14 +1,12 @@
 'use client';
 
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { Card, CardContent } from '@/components/ui/card';
+import { Draggable } from '@hello-pangea/dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  Calendar, 
-  Edit, 
-  GripVertical, 
+import {
+  Calendar,
+  Edit,
+  GripVertical,
   ExternalLink,
   AlertCircle,
   Clock,
@@ -16,141 +14,168 @@ import {
 import { formatDate, isDueSoon } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import type { Task } from '@/types';
+import type { Task, TaskPriority } from '@/types';
 
 interface KanbanCardProps {
-  task: Task & { project?: { id: string; name: string; client: { name: string } } };
+  task: Task & {
+    project?: {
+      id: string;
+      name: string;
+      client: {
+        id: string;
+        name: string;
+      };
+    };
+  };
+  index: number;
   onEdit: (task: Task) => void;
 }
 
-export function KanbanCard({ task, onEdit }: KanbanCardProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: task.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  const getPriorityColor = () => {
-    switch (task.priority) {
+export function KanbanCard({ task, index, onEdit }: KanbanCardProps) {
+  const getPriorityConfig = (priority: TaskPriority) => {
+    switch (priority) {
       case 'HIGH':
-        return 'border-l-red-500 bg-red-50/50';
+        return {
+          color: 'bg-red-500',
+          label: 'Hoch',
+        };
       case 'MEDIUM':
-        return 'border-l-orange-500 bg-orange-50/50';
+        return {
+          color: 'bg-orange-500',
+          label: 'Mittel',
+        };
       case 'LOW':
-        return 'border-l-blue-500 bg-blue-50/50';
+        return {
+          color: 'bg-blue-500',
+          label: 'Niedrig',
+        };
       default:
-        return 'border-l-slate-500 bg-slate-50/50';
+        return {
+          color: 'bg-gray-500',
+          label: 'Normal',
+        };
     }
   };
 
-  const getPriorityBadge = () => {
-    switch (task.priority) {
-      case 'HIGH':
-        return <Badge className="bg-red-500 hover:bg-red-600 text-white shadow-sm">Hoch</Badge>;
-      case 'MEDIUM':
-        return <Badge className="bg-orange-500 hover:bg-orange-600 text-white shadow-sm">Mittel</Badge>;
-      case 'LOW':
-        return <Badge className="bg-blue-500 hover:bg-blue-600 text-white shadow-sm">Niedrig</Badge>;
-      default:
-        return null;
-    }
-  };
-
+  const priorityConfig = getPriorityConfig(task.priority);
   const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'DONE';
   const isDueSoonTask = task.dueDate && isDueSoon(task.dueDate) && task.status !== 'DONE';
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes}>
-      <Card
-        className={cn(
-          'group cursor-move hover:shadow-xl transition-all duration-300 border-l-4',
-          getPriorityColor(),
-          isDragging && 'opacity-50 rotate-3 scale-105',
-          !isDragging && 'hover:-translate-y-1'
-        )}
-      >
-        <CardContent className="p-4 space-y-3">
-          {/* Drag Handle & Title */}
-          <div className="flex items-start gap-2">
-            <div
-              {...listeners}
-              className="mt-1 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <GripVertical className="h-5 w-5" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-sm leading-tight group-hover:text-blue-600 transition-colors">
-                {task.title}
-              </h3>
-              {task.description && (
-                <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2">
-                  {task.description}
-                </p>
-              )}
-            </div>
-          </div>
+    <Draggable draggableId={task.id} index={index}>
+      {(provided, snapshot) => {
+        return (
+          <div
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            style={provided.draggableProps.style}
+            className={cn(
+              'bg-white rounded-lg border border-gray-200 shadow-sm',
+              snapshot.isDragging 
+                ? 'shadow-2xl ring-2 ring-blue-400 opacity-90 cursor-grabbing [&]:!left-auto [&]:!top-auto' 
+                : 'hover:shadow-md cursor-grab transition-shadow duration-150',
+              isOverdue && !snapshot.isDragging && 'ring-2 ring-red-400'
+            )}
+          >
+            <div className={cn('p-4', snapshot.isDragging ? 'pointer-events-none select-none' : '')}>
+              {/* Header with Priority Badge */}
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1 min-w-0 pr-2">
+                  <h3
+                    className="font-semibold text-sm text-gray-900 mb-1 pointer-events-auto cursor-pointer hover:text-blue-600 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit(task);
+                    }}
+                  >
+                    {task.title}
+                  </h3>
+                  {task.description && (
+                    <p className="text-xs text-gray-600 line-clamp-2">
+                      {task.description}
+                    </p>
+                  )}
+                </div>
+                {/* Drag indicator */}
+                <div className="text-gray-300 flex-shrink-0">
+                  <GripVertical className="h-5 w-5" />
+                </div>
+              </div>
 
-          {/* Project Info */}
-          {task.project && (
-            <div className="flex items-center gap-1.5 text-xs">
-              <Link
-                href={`/projects/${task.project.id}`}
-                className="flex items-center gap-1 text-blue-600 hover:text-blue-700 hover:underline font-medium transition-colors"
-                onClick={(e) => e.stopPropagation()}
+            {/* Priority Badge */}
+            <div className="mb-3">
+              <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium text-white', priorityConfig.color)}>
+                <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                {priorityConfig.label}
+              </span>
+            </div>
+
+            {/* Project & Client */}
+            {task.project && (
+              <div className="mb-3 space-y-1">
+                <Link
+                  href={`/projects/${task.project.id}`}
+                  className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors group pointer-events-auto"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ExternalLink className="h-3 w-3 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                  <span className="truncate">{task.project.name}</span>
+                </Link>
+                <div className="text-xs text-gray-500 ml-4 truncate">
+                  {task.project.client.name}
+                </div>
+              </div>
+            )}
+
+            {/* Due Date */}
+            {task.dueDate && (
+              <div
+                className={cn(
+                  'flex items-center gap-2 px-2.5 py-1.5 rounded text-xs font-medium',
+                  isOverdue && 'bg-red-50 text-red-700 border border-red-200',
+                  isDueSoonTask && !isOverdue && 'bg-orange-50 text-orange-700 border border-orange-200',
+                  !isOverdue && !isDueSoonTask && 'bg-gray-50 text-gray-700'
+                )}
               >
-                <ExternalLink className="h-3 w-3" />
-                {task.project.name}
-              </Link>
-              <span className="text-muted-foreground">•</span>
-              <span className="text-muted-foreground">{task.project.client.name}</span>
-            </div>
-          )}
+                {isOverdue ? (
+                  <>
+                    <AlertCircle className="h-3.5 w-3.5" />
+                    <span className="flex-1">{formatDate(task.dueDate)}</span>
+                  </>
+                ) : isDueSoonTask ? (
+                  <>
+                    <Clock className="h-3.5 w-3.5" />
+                    <span className="flex-1">{formatDate(task.dueDate)}</span>
+                  </>
+                ) : (
+                  <>
+                    <Calendar className="h-3.5 w-3.5" />
+                    <span>{formatDate(task.dueDate)}</span>
+                  </>
+                )}
+              </div>
+            )}
 
-          {/* Due Date */}
-          {task.dueDate && (
-            <div
-              className={cn(
-                'flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-md',
-                isOverdue && 'bg-red-100 text-red-700 animate-pulse',
-                isDueSoonTask && !isOverdue && 'bg-orange-100 text-orange-700',
-                !isOverdue && !isDueSoonTask && 'bg-slate-100 text-slate-600'
-              )}
-            >
-              {isOverdue ? (
-                <AlertCircle className="h-3 w-3" />
-              ) : (
-                <Calendar className="h-3 w-3" />
-              )}
-              <span>{formatDate(task.dueDate)}</span>
-              {isOverdue && <span className="ml-1">(Überfällig!)</span>}
-              {isDueSoonTask && !isOverdue && <span className="ml-1">(Bald fällig)</span>}
+            {/* Edit Button */}
+            <div className="flex items-center justify-end mt-3 pt-3 border-t border-gray-100">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(task);
+                }}
+                className="h-7 px-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors text-xs pointer-events-auto"
+              >
+                <Edit className="h-3 w-3 mr-1" />
+                Bearbeiten
+              </Button>
             </div>
-          )}
-
-          {/* Footer: Priority & Edit */}
-          <div className="flex items-center justify-between pt-2 border-t">
-            <div>
-              {getPriorityBadge()}
-            </div>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => onEdit(task)}
-              className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-100 hover:text-blue-600"
-            >
-              <Edit className="h-3.5 w-3.5" />
-            </Button>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+        );
+      }}
+    </Draggable>
   );
 }

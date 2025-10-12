@@ -149,6 +149,73 @@ export async function PUT(
 }
 
 /**
+ * PATCH /api/tasks/[id]
+ * Partial update a task (e.g., status only for drag & drop)
+ */
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const body = await request.json();
+
+    // Check if task exists
+    const existingTask = await prisma.task.findUnique({
+      where: { id: params.id },
+    });
+
+    if (!existingTask) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Aufgabe nicht gefunden',
+          code: 'TASK_NOT_FOUND',
+        },
+        { status: 404 }
+      );
+    }
+
+    // Update only the provided fields
+    const task = await prisma.task.update({
+      where: { id: params.id },
+      data: body,
+      include: {
+        project: {
+          include: {
+            client: true,
+          },
+        },
+      },
+    });
+
+    // Log activity if status changed
+    if (body.status && existingTask.status !== body.status) {
+      await logStatusChanged(
+        'task',
+        task.id,
+        task.title,
+        existingTask.status,
+        body.status
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: task,
+    });
+  } catch (error) {
+    console.error('Error patching task:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Fehler beim Aktualisieren der Aufgabe',
+      },
+      { status: 500 }
+    );
+  }
+}
+
+/**
  * DELETE /api/tasks/[id]
  * Delete a task
  */

@@ -1,51 +1,66 @@
 'use client';
 
-import { useDroppable } from '@dnd-kit/core';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface KanbanColumnProps {
-  id: string;
   title: string;
   count: number;
+  percentage: number;
+  icon: LucideIcon;
   color: string;
+  bgColor: string;
+  isDraggingOver: boolean;
   children: React.ReactNode;
 }
 
-export function KanbanColumn({ id, title, count, color, children }: KanbanColumnProps) {
-  const { setNodeRef, isOver } = useDroppable({ id });
-
+export function KanbanColumn({
+  title,
+  count,
+  percentage,
+  icon: Icon,
+  color,
+  bgColor,
+  isDraggingOver,
+  children,
+}: KanbanColumnProps) {
   return (
-    <Card 
-      ref={setNodeRef}
-      className={cn(
-        'border-2 transition-all duration-300 min-h-[600px]',
-        isOver ? 'ring-4 ring-blue-300 ring-opacity-50 scale-105 shadow-2xl' : 'shadow-lg hover:shadow-xl',
-        color
-      )}
-    >
-      <CardHeader className="pb-4 border-b-2 bg-gradient-to-r from-white/50 to-transparent">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-bold flex items-center gap-2">
-            {title}
-          </CardTitle>
-          <Badge 
-            variant="secondary" 
-            className={cn(
-              'font-bold text-base px-3 py-1 shadow-sm',
-              id === 'TODO' && 'bg-slate-200 text-slate-700',
-              id === 'IN_PROGRESS' && 'bg-blue-200 text-blue-700',
-              id === 'DONE' && 'bg-green-200 text-green-700'
-            )}
-          >
-            {count}
-          </Badge>
+    <div className="flex flex-col h-full">
+      {/* Column Header - Clean and Simple */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-4 p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className={cn('p-1.5 rounded', bgColor)}>
+              <Icon className={cn('h-4 w-4', color)} />
+            </div>
+            <h3 className="font-semibold text-sm text-gray-900">{title}</h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-500">{percentage}%</span>
+            <span className={cn('font-bold text-lg', color)}>{count}</span>
+          </div>
         </div>
-      </CardHeader>
-      <CardContent className="pt-4 space-y-3">
+        
+        {/* Progress Bar */}
+        <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+          <div
+            className={cn('h-full transition-all duration-500', color.replace('text-', 'bg-'))}
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Drop Zone */}
+      <div
+        className={cn(
+          'flex-1 rounded-lg border-2 p-3 transition-all duration-200',
+          isDraggingOver
+            ? 'border-blue-400 bg-blue-50/50 border-solid'
+            : 'border-dashed border-gray-200 bg-gray-50/30'
+        )}
+      >
         {children}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
