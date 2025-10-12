@@ -123,15 +123,33 @@ export function TaskKanbanView({ tasks, isLoading, onEdit, onViewDetails }: Task
 
     const newStatus = destination.droppableId as TaskStatus;
     
-    // No status change
+    // Optimistically reorder tasks
+    setLocalTasks((prevTasks) => {
+      // Remove task from source
+      const tasksWithoutDragged = prevTasks.filter((t) => t.id !== draggableId);
+      
+      // Update task status
+      const updatedTask = { ...task, status: newStatus };
+      
+      // Get tasks for destination column
+      const destColumnTasks = tasksWithoutDragged.filter((t) => t.status === newStatus);
+      
+      // Insert at correct position
+      const newDestColumnTasks = [
+        ...destColumnTasks.slice(0, destination.index),
+        updatedTask,
+        ...destColumnTasks.slice(destination.index),
+      ];
+      
+      // Combine all tasks
+      const otherTasks = tasksWithoutDragged.filter((t) => t.status !== newStatus);
+      return [...otherTasks, ...newDestColumnTasks];
+    });
+
+    // Only update status if changed
     if (task.status === newStatus) {
       return;
     }
-
-    // Optimistically update the UI
-    setLocalTasks((prevTasks) =>
-      prevTasks.map((t) => (t.id === draggableId ? { ...t, status: newStatus } : t))
-    );
 
     try {
       // Update via API
